@@ -22,6 +22,6 @@ export default {
 }
 
 .ivu-select-dropdown{
-  max-height: 80vh;
+  max-height: 80vh !important;
 }
 </style>
