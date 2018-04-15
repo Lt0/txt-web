@@ -31,13 +31,12 @@
         position: fixed;
         right: 50px;
         top: 0px;
-        
     }
     .btn{
         color: #fff;
     }
     .caption-list-item{
-        width: 250px; 
+        width: 250px;
         text-align: left;
         overflow-x: hidden;
     }
@@ -49,7 +48,6 @@
     #main{
         display: flex;
         justify-content: center;
-
 
         padding-top: 64px;
         background: #f5f7f9;
@@ -100,8 +98,9 @@
 </div>
 </template>
 <script>
-    import axios from 'axios';
-    let rootPath = "/static/cache/books/"
+import axios from 'axios'
+
+let rootPath = '/static/cache/books/';
 
     export default {
         data() {
