@@ -2,6 +2,9 @@
     .btn{
         color: #fff;
     }
+    .btn:hover{
+        border-color: #fff;
+    }
     .caption-list-item{
         width: 250px;
         text-align: left;
@@ -9,7 +12,7 @@
         text-overflow: ellipsis;
     }
     #content{
-        line-height: 200%;
+        /*line-height: 200%;*/
         text-align: justify;
     }
 
@@ -69,7 +72,7 @@
         min-height: 800px;
         width: 800px;
         background: #fff;
-        padding: 50px;
+        /*padding: 50px;*/
         margin: 25px auto;
     }
     #right{
@@ -89,6 +92,26 @@
     #caption-title{
         padding-bottom: 20px;
     }
+
+    #setArea {
+        width: 500px;
+        height: 600px;
+        padding: 30px;
+    }
+    .set-item{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .set-item .slider{
+        flex-grow: 1;
+    }
+    .btn-gutter-l {
+        margin-left: 16px;
+    }
+    .btn-gutter-r {
+        margin-right: 16px;
+    }
 </style>
 <template>
 <div>
@@ -97,25 +120,86 @@
         <div id="hdr-center"></div>
         <div id="hdr-right">
             <ButtonGroup>
-            <Button type="text" shape="circle" icon="minus-round" class="btn hdr-btn" v-on:click="minusFont"></Button>
-            <Button type="text" shape="circle" icon="plus-round" class="btn hdr-btn" v-on:click="plusFont"></Button>
+                <Tooltip content="fontSize - 10%">
+                    <Button type="text" shape="circle" icon="minus-round" class="btn hdr-btn" v-on:click="minusFont"></Button>
+                </Tooltip>
+                <Tooltip content="fontSize + 10%">
+                    <Button type="text" shape="circle" icon="plus-round" class="btn hdr-btn" v-on:click="plusFont"></Button>
+                </Tooltip>
             </ButtonGroup>
             <Dropdown id="captions" placement="bottom-end" trigger="click" class="caption-list" transfer @on-click="goCaption">
-                <Button type="ghost" shape="circle" icon="navicon-round" class="btn hdr-btn hdr-btn-gutter-l"></Button>
+                <Button type="text" shape="circle" icon="navicon-round" class="btn hdr-btn hdr-btn-gutter-l"></Button>
                 <DropdownMenu slot="list">
                     <DropdownItem class="caption-list-item" v-for="catalog in catalogs" :name="catalog.name" :key="catalog.index">{{ catalog.text }}</DropdownItem>
                 </DropdownMenu>
             </Dropdown>
+
+            <Dropdown id="setting" placement="bottom-end" trigger="custom" transfer :visible="settingVisible">
+                <Button type="text" size="large" shape="circle" icon="ios-gear" class="btn hdr-btn hdr-btn-gutter-l" @click="showSetting"></Button>
+                <DropdownMenu slot="list">
+                    <div id="setArea">
+                        <div id="set-gutter">
+                            <div> 行间距 </div>
+                            <div class="set-item">
+                                <div class="slider">
+                                    <Slider v-model="setLineHeight" show-input :max="500"></Slider>
+                                </div>
+                                <Button type="ghost" class="btn-gutter-l" @click="setLineHeight=200">默认</Button>
+                            </div>
+
+                            <div> 左右边距 </div>
+                            <div class="set-item">
+                                <div class="slider">
+                                    <Slider v-model="setVPadding" show-input></Slider>
+                                </div>
+                                <Button type="ghost" class="btn-gutter-l" @click="setVPadding=50">默认</Button>
+                            </div>
+
+                            <div> 上下边距 </div>
+                            <div class="set-item">
+                                <div class="slider">
+                                    <Slider v-model="setHPadding" show-input :max="200"></Slider>
+                                </div>
+                                <Button type="ghost" class="btn-gutter-l" @click="setHPadding=50">默认</Button>
+                            </div>
+
+                            <div> 文字间隔 </div>
+                            <div class="set-item">
+                                <div class="slider">
+                                    <Slider v-model="setLetterSpacing" show-input :min="-2" :max="20"></Slider>
+                                </div>
+                                <Button type="ghost" class="btn-gutter-l" @click="setLetterSpacing=0">默认</Button>
+                            </div>
+                        </div>
+                        <div id="set-color">
+                            <div>颜色设置</div>
+                            <div class="set-item">
+                                <div>文字: <ColorPicker v-model="fontColor" :colors="colors" size="small"/></div>
+                                <div class="btn-gutter-l">文字背景: <ColorPicker v-model="fontBgColor" :colors="colors" size="small"/></div>
+                                <div class="btn-gutter-l">页面背景: <ColorPicker v-model="bgColor" :colors="colors" size="small"/></div>
+                            </div>
+                        </div>
+                        <div id="set-font">
+                        </div>
+    
+                        <div style="text-align: right; margin-top: 30px">
+                            <Button type="primary" class="btn-gutter-l" @click="settingVisible=false">关闭</Button>
+                        </div>
+                    </div>
+                </DropdownMenu>
+            </Dropdown>
         </div>
     </div>
+
     <div id="main">
         <div id="left" v-on:click="goPrev"><Icon id="goPrev" type="chevron-left"></Icon></div>
-        <div id="center" v-bind:style="{fontSize: fontSize + '%'}">
+        <div id="center" :style="{fontSize: fontSize+'%', lineHeight: setLineHeight+'%', letterSpacing: setLetterSpacing+'px', paddingLeft: setVPadding+'px', paddingRight: setVPadding+'px', paddingTop: setHPadding+'px', paddingBottom: setHPadding+'px',}">
             <h2 id="caption-title">{{ captionTitle }}</h2>
             <p id="content">{{ content }}</p>
         </div>
         <div id="right" v-on:click="goNext"><Icon id="goNext" type="chevron-right"></Icon></div>
     </div>
+
     <Footer class="layout-footer-center" :style="{color: '#80848f'}">2018 &copy; lightimehpq@gmail.com</Footer>
 </div>
 </template>
@@ -123,7 +207,7 @@
 import axios from 'axios'
 
 let rootPath = '/static/cache/books/';
-
+    
     export default {
         data() {
             return {
@@ -132,6 +216,15 @@ let rootPath = '/static/cache/books/';
                 captionTitle: null,
                 loading: true,
                 fontSize: 120,
+                settingVisible: false,
+                setLineHeight: 200,
+                setVPadding: 50,
+                setHPadding: 50,
+                setLetterSpacing: 0,
+                fontColor: '#495060',
+                fontBgColor: '#fff',
+                bgColor: '#f5f7f9',
+                colors: ['#1c2438', '#495060', '#80848f', '#bbbec4', '#dddee1', '#e9eaec', '#f8f8f9', '#f5f7f9', '#fff'],
             }
         },
         created () {
@@ -235,6 +328,12 @@ let rootPath = '/static/cache/books/';
                 console.log("plusFont");
                 this.fontSize += 10;
                 this.$Message.info('字体大小: ' + this.fontSize + "%");
+            },
+            showSetting () {
+                this.settingVisible = true;
+            },
+            closeSetting () {
+                this.settingVisible = false;
             },
         }
 
