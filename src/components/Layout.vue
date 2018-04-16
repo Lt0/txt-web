@@ -20,6 +20,7 @@
         display: flex;
         justify-content: center;
 
+        color: #fff;
         background-color: #1c2438;
 
         width: 100%;
@@ -28,6 +29,9 @@
     }
     #hdr-left{
         flex-grow: 0;
+
+        display: flex;
+        align-items: center;
     }
     #hdr-center{
         flex-grow: 1;
@@ -42,6 +46,12 @@
     .hdr-btn-gutter {
         margin-left: 16px;
         margin-right: 16px;
+    }
+    .hdr-btn-gutter-r {
+        margin-right: 16px;
+    }
+    .hdr-btn-gutter-l {
+        margin-left: 16px;
     }
 
     #main{
@@ -82,17 +92,15 @@
 <template>
 <div>
     <div id="hdr">
-        <div id="hdr-left">
-        </div>
-        <div id="hdr-center">
-        </div>
+        <div id="hdr-left">{{ captionTitle }}</div>
+        <div id="hdr-center"></div>
         <div id="hdr-right">
             <ButtonGroup>
             <Button type="text" shape="circle" icon="minus-round" class="btn hdr-btn" v-on:click="minusFont"></Button>
             <Button type="text" shape="circle" icon="plus-round" class="btn hdr-btn" v-on:click="plusFont"></Button>
             </ButtonGroup>
             <Dropdown id="captions" placement="bottom-end" trigger="click" class="caption-list" transfer @on-click="goCaption">
-                <Button type="ghost" shape="circle" icon="navicon-round" class="btn hdr-btn hdr-btn-gutter"></Button>
+                <Button type="ghost" shape="circle" icon="navicon-round" class="btn hdr-btn hdr-btn-gutter-l"></Button>
                 <DropdownMenu slot="list">
                     <DropdownItem class="caption-list-item" v-for="catalog in catalogs" :name="catalog.name" :key="catalog.index">{{ catalog.text }}</DropdownItem>
                 </DropdownMenu>
@@ -159,6 +167,9 @@ let rootPath = '/static/cache/books/';
                     //console.log("captionTitle: " + captionTitle);
                     self.captionTitle = captionTitle;
 
+                    let t = document.getElementsByTagName("title")[0];
+                    t.innerHTML = file;
+
                 }).catch(function(error){
                     console.log(error);
                 });
@@ -217,10 +228,12 @@ let rootPath = '/static/cache/books/';
                 console.log("minusFont");
                 if (this.fontSize <= 10) return;
                 this.fontSize -= 10;
+                this.$Message.info('字体大小: ' + this.fontSize + "%");
             },
             plusFont () {
                 console.log("plusFont");
                 this.fontSize += 10;
+                this.$Message.info('字体大小: ' + this.fontSize + "%");
             },
         }
 
