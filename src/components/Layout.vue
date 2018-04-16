@@ -6,6 +6,7 @@
         width: 250px;
         text-align: left;
         overflow-x: hidden;
+        text-overflow: ellipsis;
     }
     #content{
         line-height: 200%;
