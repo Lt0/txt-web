@@ -1,37 +1,4 @@
 <style scoped>
-    .layout{
-        border: 1px solid #d7dde4;
-        background: #f5f7f9;
-        position: relative;
-        border-radius: 4px;
-        overflow: hidden;
-    }
-    .layout-logo{
-        width: 100px;
-        height: 30px;
-        background: #5b6270;
-        border-radius: 3px;
-        float: left;
-        position: relative;
-        top: 15px;
-        left: 20px;
-
-        color: #fff;
-    }
-    .layout-nav{
-        width: 420px;
-        margin: 0 auto;
-        margin-right: 20px;
-    }
-    .layout-footer-center{
-        text-align: center;
-    }
-
-    #captions{
-        position: fixed;
-        right: 50px;
-        top: 0px;
-    }
     .btn{
         color: #fff;
     }
@@ -43,6 +10,38 @@
     #content{
         line-height: 200%;
         text-align: justify;
+    }
+
+    #hdr{
+        position: fixed;
+        top: 0px;
+        left: 0px;
+
+        display: flex;
+        justify-content: center;
+
+        background-color: #1c2438;
+
+        width: 100%;
+        height: 64px;
+        padding: 16px 50px;
+    }
+    #hdr-left{
+        flex-grow: 0;
+    }
+    #hdr-center{
+        flex-grow: 1;
+    }
+    #hdr-right{
+        flex-grow: 0;
+    }
+
+    .hdr-btn {
+        margin-bottom: 16px;
+    }
+    .hdr-btn-gutter {
+        margin-left: 16px;
+        margin-right: 16px;
     }
 
     #main{
@@ -75,21 +74,35 @@
         top: 50%;
         left: 50px;
     }
+
+    #caption-title{
+        padding-bottom: 20px;
+    }
 </style>
 <template>
 <div>
-    <Header :style="{position: 'fixed', width: '100%', top: '0px', left: '0px', zIndex: '50'}">
-        <Dropdown id="captions" placement="bottom-end" trigger="click" class="caption-list" transfer @on-click="goCaption">
-            <Button type="ghost" shape="circle" icon="navicon-round" class="btn"></Button>
-            <DropdownMenu slot="list">
-                <DropdownItem class="caption-list-item" v-for="catalog in catalogs" :name="catalog.name" :key="catalog.index">{{ catalog.text }}</DropdownItem>
-            </DropdownMenu>
-        </Dropdown>
-    </Header>
+    <div id="hdr">
+        <div id="hdr-left">
+        </div>
+        <div id="hdr-center">
+        </div>
+        <div id="hdr-right">
+            <ButtonGroup>
+            <Button type="text" shape="circle" icon="minus-round" class="btn hdr-btn" v-on:click="minusFont"></Button>
+            <Button type="text" shape="circle" icon="plus-round" class="btn hdr-btn" v-on:click="plusFont"></Button>
+            </ButtonGroup>
+            <Dropdown id="captions" placement="bottom-end" trigger="click" class="caption-list" transfer @on-click="goCaption">
+                <Button type="ghost" shape="circle" icon="navicon-round" class="btn hdr-btn hdr-btn-gutter"></Button>
+                <DropdownMenu slot="list">
+                    <DropdownItem class="caption-list-item" v-for="catalog in catalogs" :name="catalog.name" :key="catalog.index">{{ catalog.text }}</DropdownItem>
+                </DropdownMenu>
+            </Dropdown>
+        </div>
+    </div>
     <div id="main">
         <div id="left" v-on:click="goPrev"><Icon id="goPrev" type="chevron-left"></Icon></div>
-        <div id="center">
-            <h4 id="captionTitle">{{ captionTitle }}</h4>
+        <div id="center" v-bind:style="{fontSize: fontSize + '%'}">
+            <h2 id="caption-title">{{ captionTitle }}</h2>
             <p id="content">{{ content }}</p>
         </div>
         <div id="right" v-on:click="goNext"><Icon id="goNext" type="chevron-right"></Icon></div>
@@ -109,6 +122,7 @@ let rootPath = '/static/cache/books/';
                 content: null,
                 captionTitle: null,
                 loading: true,
+                fontSize: 120,
             }
         },
         created () {
@@ -198,6 +212,15 @@ let rootPath = '/static/cache/books/';
                 let nextCaption = nextIndex + ".txt";
                 let p = "/" + this.$route.params.file + "/" + nextCaption;
                 this.$router.push({ path: p })
+            },
+            minusFont () {
+                console.log("minusFont");
+                if (this.fontSize <= 10) return;
+                this.fontSize -= 10;
+            },
+            plusFont () {
+                console.log("plusFont");
+                this.fontSize += 10;
             },
         }
 
