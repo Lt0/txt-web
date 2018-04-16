@@ -1,9 +1,23 @@
 <style scoped>
     .btn{
         color: #fff;
+        mix-blend-mode: exclusion;
     }
     .btn:hover{
         border-color: #fff;
+        mix-blend-mode: difference;
+    }
+    .btn:active{
+        border-color: #fff;
+        mix-blend-mode: difference;
+    }
+    .btn:visited{
+        border-color: #fff;
+        mix-blend-mode: difference;
+    }
+    .btn:focus{
+        border-color: #fff;
+        mix-blend-mode: difference;
     }
     .caption-list-item{
         width: 250px;
@@ -24,9 +38,6 @@
         display: flex;
         justify-content: center;
 
-        color: #fff;
-        background-color: #1c2438;
-
         width: 100%;
         height: 64px;
         padding: 16px 50px;
@@ -36,6 +47,9 @@
 
         display: flex;
         align-items: center;
+
+        color: #fff;
+        mix-blend-mode: difference;
     }
     #hdr-center{
         flex-grow: 1;
@@ -61,9 +75,7 @@
     #main{
         display: flex;
         justify-content: center;
-
         padding-top: 64px;
-        background: #f5f7f9;
     }
     #left{
         flex-grow: 1;
@@ -71,8 +83,6 @@
     #center{
         min-height: 800px;
         width: 800px;
-        background: #fff;
-        /*padding: 50px;*/
         margin: 25px auto;
     }
     #right{
@@ -94,17 +104,27 @@
     }
 
     #setArea {
-        width: 500px;
-        height: 600px;
-        padding: 30px;
+        width: 600px;
+        height: 680px;
+        padding: 0px 30px;
+    }
+    .set-group{
+        padding: 16px 0px;
     }
     .set-item{
         display: flex;
         align-items: center;
         justify-content: center;
     }
+    .set-title{
+        padding-bottom: 16px;
+    }
     .set-item .slider{
         flex-grow: 1;
+    }
+    .btn-gutter {
+        margin-left: 16px;
+        margin-right: 16px;
     }
     .btn-gutter-l {
         margin-left: 16px;
@@ -112,19 +132,33 @@
     .btn-gutter-r {
         margin-right: 16px;
     }
+    .theme-list{
+        display: flex;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+    .theme-item{
+        width: 90px;
+        height: 90px;
+        margin: 5px 5px 0px 0px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 </style>
 <template>
-<div>
-    <div id="hdr">
+<div :style="{background: theme.bg, fontFamily: theme.font}">
+    <div id="hdr" :style="{background: theme.hdrBg}">
         <div id="hdr-left">{{ captionTitle }}</div>
         <div id="hdr-center"></div>
         <div id="hdr-right">
             <ButtonGroup>
                 <Tooltip content="fontSize - 10%">
-                    <Button type="text" shape="circle" icon="minus-round" class="btn hdr-btn" v-on:click="minusFont"></Button>
+                    <Button type="text" shape="circle" icon="minus-round" class="btn hdr-btn" @click="minusFont"></Button>
                 </Tooltip>
                 <Tooltip content="fontSize + 10%">
-                    <Button type="text" shape="circle" icon="plus-round" class="btn hdr-btn" v-on:click="plusFont"></Button>
+                    <Button type="text" shape="circle" icon="plus-round" class="btn hdr-btn" @click="plusFont"></Button>
                 </Tooltip>
             </ButtonGroup>
             <Dropdown id="captions" placement="bottom-end" trigger="click" class="caption-list" transfer @on-click="goCaption">
@@ -134,56 +168,80 @@
                 </DropdownMenu>
             </Dropdown>
 
-            <Dropdown id="setting" placement="bottom-end" trigger="custom" transfer :visible="settingVisible">
-                <Button type="text" size="large" shape="circle" icon="ios-gear" class="btn hdr-btn hdr-btn-gutter-l" @click="showSetting"></Button>
+            <Dropdown id="setting" placement="bottom-end" trigger="custom" transfer :visible="setVisible">
+                <Button type="text" size="large" shape="circle" icon="ios-gear" class="btn hdr-btn hdr-btn-gutter-l" @click="setVisible? setVisible=false: setVisible=true"></Button>
                 <DropdownMenu slot="list">
                     <div id="setArea">
-                        <div id="set-gutter">
-                            <div> 行间距 </div>
+                        <div id="set-color" class="set-group">
+                            <div class="set-title">
+                                颜色设置
+                                <Button type="ghost" size="small" class="btn-gutter-l" @click="theme.fontColor = defaultTheme.fontColor; theme.fontBg = defaultTheme.fontBg; theme.bg = defaultTheme.bg; theme.hdrBg=defaultTheme.hdrBg">默认</Button></div>
                             <div class="set-item">
-                                <div class="slider">
-                                    <Slider v-model="setLineHeight" show-input :max="500"></Slider>
-                                </div>
-                                <Button type="ghost" class="btn-gutter-l" @click="setLineHeight=200">默认</Button>
+                                <div>文字: <ColorPicker v-model="theme.fontColor" :colors="colors" size="small"/></div>
+                                <div class="btn-gutter-l">纸张: <ColorPicker v-model="theme.fontBg" :colors="colors" size="small"/></div>
+                                <div class="btn-gutter-l">背景: <ColorPicker v-model="theme.bg" :colors="colors" size="small"/></div>
+                                <div class="btn-gutter-l">页首: <ColorPicker v-model="theme.hdrBg" :colors="colors" size="small"/></div>
+                                
                             </div>
+                            
+                        </div>
 
-                            <div> 左右边距 </div>
-                            <div class="set-item">
-                                <div class="slider">
-                                    <Slider v-model="setVPadding" show-input></Slider>
-                                </div>
-                                <Button type="ghost" class="btn-gutter-l" @click="setVPadding=50">默认</Button>
-                            </div>
-
-                            <div> 上下边距 </div>
-                            <div class="set-item">
-                                <div class="slider">
-                                    <Slider v-model="setHPadding" show-input :max="200"></Slider>
-                                </div>
-                                <Button type="ghost" class="btn-gutter-l" @click="setHPadding=50">默认</Button>
-                            </div>
-
-                            <div> 文字间隔 </div>
-                            <div class="set-item">
-                                <div class="slider">
-                                    <Slider v-model="setLetterSpacing" show-input :min="-2" :max="20"></Slider>
-                                </div>
-                                <Button type="ghost" class="btn-gutter-l" @click="setLetterSpacing=0">默认</Button>
+                        <div id="set-theme" class="set-group">
+                            <div class="set-title">主题设置</div>
+                            <div class="theme-list">
+                                <div class="theme-item" v-for="t in themeList" :key="t.index" @click="useTheme(t)" :style="{background: t.theme.bg, color: t.theme.fontColor}"><div :style="{background: t.theme.fontBg, padding: '10px', maxWidth: '90%'}">{{ t.name }}</div></div>
                             </div>
                         </div>
-                        <div id="set-color">
-                            <div>颜色设置</div>
+
+                        <div id="set-font" class="set-group">
+                            <div class="set-title">字体设置</div>字体：
+                                <Select v-model="theme.font" placeholder=theme.font size="small" style="width:150px">
+                                    <Option v-for="item in fontList" :value="item.name" :key="item.index">{{ item.name }}</Option>
+                                </Select>
+                                <Button type="ghost" size="small" class="btn-gutter" @click="theme.font=defaultTheme.font">默认</Button>
+                                <span class="btn-gutter-l">繁体：<i-switch size="small"></i-switch></span>
+
                             <div class="set-item">
-                                <div>文字: <ColorPicker v-model="fontColor" :colors="colors" size="small"/></div>
-                                <div class="btn-gutter-l">文字背景: <ColorPicker v-model="fontBgColor" :colors="colors" size="small"/></div>
-                                <div class="btn-gutter-l">页面背景: <ColorPicker v-model="bgColor" :colors="colors" size="small"/></div>
+                                <div>字体大小</div>
+                                <div class="slider btn-gutter-l"><Slider v-model="theme.fontSize" show-input :max="300"></Slider></div>
+                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.fontSize=defaultTheme.fontSize">默认</Button></Tooltip>
                             </div>
                         </div>
-                        <div id="set-font">
+
+                        <div id="set-gutter" class="set-group">
+                            <div class="set-title">间距设置</div>
+                            <div class="set-item">
+                                <div> 文字间隔</div>
+                                <div class="slider btn-gutter-l"><Slider v-model="theme.letterSpacing" show-input :min="-2" :max="20"></Slider></div>
+                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.letterSpacing=defaultTheme.letterSpacing">默认</Button></Tooltip>
+                            </div>
+
+                            
+                            <div class="set-item">
+                                <div> 上下边距 </div>
+                                <div class="slider btn-gutter-l"><Slider v-model="theme.hPadding" show-input :max="200"></Slider></div>
+                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.hPadding=defaultTheme.hPadding">默认</Button></Tooltip>
+                            </div>
+
+                            
+                            <div class="set-item">
+                                <div> 行&ensp;间&ensp;距 </div>
+                                <div class="slider btn-gutter-l"><Slider v-model="theme.lineHeight" show-input :max="500"></Slider></div>
+                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.lineHeight=defaultTheme.lineHeight">默认</Button></Tooltip>
+                            </div>
+
+                            
+                            <div class="set-item">
+                                <div> 左右边距 </div>
+                                <div class="slider btn-gutter-l"><Slider v-model="theme.vPadding" show-input></Slider></div>
+                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.vPadding=defaultTheme.vPadding">默认</Button></Tooltip>
+                            </div>
                         </div>
-    
-                        <div style="text-align: right; margin-top: 30px">
-                            <Button type="primary" class="btn-gutter-l" @click="settingVisible=false">关闭</Button>
+                        
+                        <div style="text-align: right; margin-top: 10px">
+                            <Button type="ghost" class="btn-gutter-l" @click="theme = defaultTheme">重置</Button>
+                            <Button type="ghost" class="btn-gutter-l" @click="addTheme">保存</Button>
+                            <Button type="primary" class="btn-gutter-l" @click="setVisible=false">关闭</Button>
                         </div>
                     </div>
                 </DropdownMenu>
@@ -193,20 +251,55 @@
 
     <div id="main">
         <div id="left" v-on:click="goPrev"><Icon id="goPrev" type="chevron-left"></Icon></div>
-        <div id="center" :style="{fontSize: fontSize+'%', lineHeight: setLineHeight+'%', letterSpacing: setLetterSpacing+'px', paddingLeft: setVPadding+'px', paddingRight: setVPadding+'px', paddingTop: setHPadding+'px', paddingBottom: setHPadding+'px',}">
+        <div id="center" :style="{color: theme.fontColor, background: theme.fontBg , fontSize: theme.fontSize+'%', lineHeight: theme.lineHeight+'%', letterSpacing: theme.letterSpacing+'px', paddingLeft: theme.vPadding+'px', paddingRight: theme.vPadding+'px', paddingTop: theme.hPadding+'px', paddingBottom: theme.hPadding+'px',}">
             <h2 id="caption-title">{{ captionTitle }}</h2>
             <p id="content">{{ content }}</p>
         </div>
         <div id="right" v-on:click="goNext"><Icon id="goNext" type="chevron-right"></Icon></div>
     </div>
 
-    <Footer class="layout-footer-center" :style="{color: '#80848f'}">2018 &copy; lightimehpq@gmail.com</Footer>
+    <Footer class="layout-footer-center" :style="{color: '#80848f', background: 'transparent'}">2018 &copy; lightimehpq@gmail.com</Footer>
 </div>
 </template>
 <script>
 import axios from 'axios'
 
 let rootPath = '/static/cache/books/';
+
+function theme(hdrBg, bg, fontBg, fontColor, font, fontSize, lineHeight, vPadding, hPadding, letterSpacing) {
+    this.hdrBg = hdrBg;
+    this.bg = bg;
+    this.fontBg = fontBg;
+    this.fontColor = fontColor;
+    this.font = font;
+    this.fontSize = fontSize;
+    this.lineHeight = lineHeight;
+    this.vPadding = vPadding;
+    this.hPadding = hPadding;
+    this.latterSpacing = letterSpacing;
+}
+function themeListItem(name, theme) {
+    this.name = name;
+    this.theme = theme;
+}
+
+var curTheme = new theme('#1c2438', '#f5f7f9', '#fff', '#495060', '', 120, 200, 50, 50, 0);
+const defaultTheme = new theme('#1c2438', '#f5f7f9', '#fff', '#495060', '', 120, 200, 50, 50, 0);
+const darkTheme = new theme('#1c2438', '#f5f7f9', '#fff', '#495060', '', 120, 200, 50, 50, 0);
+const fontList = [
+    {name: 'Helvetica Neue'}, 
+    {name: 'Helvetica'}, 
+    {name: 'PingFang SC'}, 
+    {name: 'Hiragino Sans GB'}, 
+    {name: 'Microsoft YaHei'}, 
+    {name: '微软雅黑'}, 
+    {name: 'Arial'}, 
+    {name: 'sans-serif'},
+    ];
+const defaultThemeListItem = new themeListItem("default", defaultTheme);
+var themeList = [
+    defaultThemeListItem,
+];
     
     export default {
         data() {
@@ -215,16 +308,12 @@ let rootPath = '/static/cache/books/';
                 content: null,
                 captionTitle: null,
                 loading: true,
-                fontSize: 120,
-                settingVisible: false,
-                setLineHeight: 200,
-                setVPadding: 50,
-                setHPadding: 50,
-                setLetterSpacing: 0,
-                fontColor: '#495060',
-                fontBgColor: '#fff',
-                bgColor: '#f5f7f9',
+                setVisible: false,
                 colors: ['#1c2438', '#495060', '#80848f', '#bbbec4', '#dddee1', '#e9eaec', '#f8f8f9', '#f5f7f9', '#fff'],
+                fontList: fontList,
+                defaultTheme: defaultTheme,
+                theme: curTheme,
+                themeList: themeList,
             }
         },
         created () {
@@ -320,20 +409,25 @@ let rootPath = '/static/cache/books/';
             },
             minusFont () {
                 console.log("minusFont");
-                if (this.fontSize <= 10) return;
-                this.fontSize -= 10;
-                this.$Message.info('字体大小: ' + this.fontSize + "%");
+                if (this.theme.fontSize <= 10) return;
+                this.theme.fontSize -= 10;
+                this.$Message.info('字体大小: ' + this.theme.fontSize + "%");
             },
             plusFont () {
                 console.log("plusFont");
-                this.fontSize += 10;
-                this.$Message.info('字体大小: ' + this.fontSize + "%");
+                this.theme.fontSize += 10;
+                this.$Message.info('字体大小: ' + this.theme.fontSize + "%");
             },
-            showSetting () {
-                this.settingVisible = true;
+            addTheme () {
+                console.log("addTheme");
+                const tmpTheme = Object.assign({}, this.theme);
+                const t = new themeListItem(this.themeList.length, tmpTheme);
+                this.themeList.push(t);
             },
-            closeSetting () {
-                this.settingVisible = false;
+            useTheme (t) {
+                console.log("useTheme: " + t.name);
+                const tmpTheme = Object.assign({}, t.theme); 
+                this.theme = tmpTheme;
             },
         }
 
