@@ -239,8 +239,9 @@
                         </div>
                         
                         <div style="text-align: right; margin-top: 10px">
+                            <Tooltip content="根据当前配置创建新主题"><Button type="ghost" class="btn-gutter-l" @click="addTheme">新建主题</Button></Tooltip>
                             <Tooltip content="恢复到默认配置"><Button type="ghost" class="btn-gutter-l" @click="theme = defaultTheme">重置</Button></Tooltip>
-                            <Tooltip content="保存当前配置为新主题"><Button type="ghost" class="btn-gutter-l" @click="addTheme">保存</Button></Tooltip>
+                            <Tooltip content="保存当前所有主题和配置到服务器"><Button type="ghost" class="btn-gutter-l" @click="saveUserConfig">保存</Button></Tooltip>
                             <Button type="primary" class="btn-gutter-l" @click="setVisible=false">关闭</Button>
                         </div>
                     </div>
@@ -289,7 +290,7 @@ function themeListItem(name, theme) {
 
 var curTheme = new theme('#EFF3F6', '#f5f7f9', '#fff', '#495060', '', 120, 200, 50, 50, 0);
 const defaultTheme = new theme('#EFF3F6', '#f5f7f9', '#fff', '#495060', '', 120, 200, 50, 50, 0);
-const darkTheme = new theme('#EFF3F6', '#f5f7f9', '#fff', '#495060', '', 120, 200, 50, 50, 0);
+const darkTheme = new theme('#1C2438', '#495060', '#39404F', '#E9EAEC', '', 120, 200, 50, 50, 0);
 const fontList = [
     {name: 'Helvetica Neue'}, 
     {name: 'Helvetica'}, 
@@ -301,8 +302,10 @@ const fontList = [
     {name: 'sans-serif'},
     ];
 const defaultThemeListItem = new themeListItem("default", defaultTheme);
+const darkThemeListItem = new themeListItem("dark", darkTheme);
 var themeList = [
     defaultThemeListItem,
+    darkThemeListItem,
 ];
     
     export default {
