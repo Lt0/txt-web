@@ -180,60 +180,61 @@
                         <div id="set-color" class="set-group">
                             <div class="set-title">
                                 颜色设置
-                                <Button type="ghost" size="small" class="btn-gutter-l" @click="theme.fontColor = defaultTheme.fontColor; theme.fontBg = defaultTheme.fontBg; theme.bg = defaultTheme.bg; theme.hdrBg=defaultTheme.hdrBg">默认</Button></div>
+                                <Button type="ghost" size="small" class="btn-gutter-l" @click="theme.fontColor = defaultTheme.fontColor; theme.fontBg = defaultTheme.fontBg; theme.bg = defaultTheme.bg; theme.hdrBg=defaultTheme.hdrBg; setEvHandler();">默认</Button></div>
                             <div class="set-item">
-                                <div>文字: <ColorPicker v-model="theme.fontColor" :colors="colors" size="small"/></div>
-                                <div class="btn-gutter-l">纸张: <ColorPicker v-model="theme.fontBg" :colors="colors" size="small"/></div>
-                                <div class="btn-gutter-l">背景: <ColorPicker v-model="theme.bg" :colors="colors" size="small"/></div>
-                                <div class="btn-gutter-l">页首: <ColorPicker v-model="theme.hdrBg" :colors="colors" size="small"/></div>
+                                <div>文字: <ColorPicker v-model="theme.fontColor" :colors="colors" size="small" @on-change="setEvHandler" /></div>
+                                <div class="btn-gutter-l">纸张: <ColorPicker v-model="theme.fontBg" :colors="colors" size="small" @on-change="setEvHandler" /></div>
+                                <div class="btn-gutter-l">背景: <ColorPicker v-model="theme.bg" :colors="colors" size="small" @on-change="setEvHandler" /></div>
+                                <div class="btn-gutter-l">页首: <ColorPicker v-model="theme.hdrBg" :colors="colors" size="small" @on-change="setEvHandler" /></div>
                                 
                             </div>
                         </div>
 
                         <div id="set-font" class="set-group">
                             <div class="set-title">字体设置</div>字体
-                                <Select v-model="theme.font" placeholder=theme.font size="small" style="width:150px" class="btn-gutter-l">
+                                <Select v-model="theme.font" placeholder=theme.font size="small" style="width:150px" class="btn-gutter-l" @on-change="setEvHandler">
                                     <Option v-for="item in fontList" :value="item.name" :key="item.index">{{ item.name }}</Option>
                                 </Select>
-                                <Button type="ghost" size="small" class="btn-gutter" @click="theme.font=defaultTheme.font">默认</Button>
+                                <!-- 如果已设置过字体，点击默认是会触发 select 的 on-change 事件，这里不需要再绑定 on-change 事件 -->
+                                <Button type="ghost" size="small" class="btn-gutter" @click="theme.font=defaultTheme.font;">默认</Button> 
                                 <!--<span class="btn-gutter-l">繁体<i-switch class="btn-gutter-l" size="small"></i-switch></span>-->
 
                             <div class="set-item">
                                 <div>字体大小</div>
-                                <div class="slider btn-gutter-l"><Slider v-model="theme.fontSize" show-input :max="300"></Slider></div>
-                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.fontSize=defaultTheme.fontSize">默认</Button></Tooltip>
+                                <div class="slider btn-gutter-l"><Slider v-model="theme.fontSize" show-input :max="300" @on-change="setEvHandler"></Slider></div>
+                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.fontSize=defaultTheme.fontSize; setEvHandler();">默认</Button></Tooltip>
                             </div>
                         </div>
 
                         <div id="set-gutter" class="set-group">
                             <div class="set-item">
                                 <div>纸张大小</div>
-                                <div class="slider btn-gutter-l"><Slider v-model="theme.pageWidth" show-input :min="0" :max="500"></Slider></div>
-                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.pageWidth=defaultTheme.pageWidth">默认</Button></Tooltip>
+                                <div class="slider btn-gutter-l"><Slider v-model="theme.pageWidth" show-input :min="0" :max="500" @on-change="setEvHandler"></Slider></div>
+                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.pageWidth=defaultTheme.pageWidth; setEvHandler();">默认</Button></Tooltip>
                             </div>
 
                             <div class="set-item">
                                 <div> 文字间隔</div>
-                                <div class="slider btn-gutter-l"><Slider v-model="theme.letterSpacing" show-input :min="-2" :max="20"></Slider></div>
-                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.letterSpacing=defaultTheme.letterSpacing">默认</Button></Tooltip>
+                                <div class="slider btn-gutter-l"><Slider v-model="theme.letterSpacing" show-input :min="-2" :max="20" @on-change="setEvHandler"></Slider></div>
+                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.letterSpacing=defaultTheme.letterSpacing; setEvHandler();">默认</Button></Tooltip>
                             </div>
 
                             <div class="set-item">
                                 <div> 上下边距 </div>
-                                <div class="slider btn-gutter-l"><Slider v-model="theme.hPadding" show-input :max="200"></Slider></div>
-                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.hPadding=defaultTheme.hPadding">默认</Button></Tooltip>
+                                <div class="slider btn-gutter-l"><Slider v-model="theme.hPadding" show-input :max="200" @on-change="setEvHandler"></Slider></div>
+                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.hPadding=defaultTheme.hPadding; setEvHandler();">默认</Button></Tooltip>
                             </div>
 
                             <div class="set-item">
                                 <div> 行&ensp;间&ensp;距 </div>
-                                <div class="slider btn-gutter-l"><Slider v-model="theme.lineHeight" show-input :max="500"></Slider></div>
-                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.lineHeight=defaultTheme.lineHeight">默认</Button></Tooltip>
+                                <div class="slider btn-gutter-l"><Slider v-model="theme.lineHeight" show-input :max="500" @on-change="setEvHandler"></Slider></div>
+                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.lineHeight=defaultTheme.lineHeight; setEvHandler();">默认</Button></Tooltip>
                             </div>
 
                             <div class="set-item">
                                 <div> 左右边距 </div>
-                                <div class="slider btn-gutter-l"><Slider v-model="theme.vPadding" show-input></Slider></div>
-                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.vPadding=defaultTheme.vPadding">默认</Button></Tooltip>
+                                <div class="slider btn-gutter-l"><Slider v-model="theme.vPadding" show-input @on-change="setEvHandler"></Slider></div>
+                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.vPadding=defaultTheme.vPadding; setEvHandler();">默认</Button></Tooltip>
                             </div>
                         </div>
 
@@ -246,9 +247,9 @@
 
                         <div style="text-align: right; margin: 10px 0px 20px 0px">
                             <Tooltip placement="top" content="保存当前的配置为新主题"><Button type="ghost" class="btn-gutter-l" @click="addTheme">保存为主题</Button></Tooltip>
-                            <Tooltip placement="top" content="恢复本地配置为默认配置"><Button type="ghost" class="btn-gutter-l" @click="resetUserConf">重置</Button></Tooltip>
-                            <Tooltip placement="top" content="同步服务器的配置到本地"><Button type="ghost" class="btn-gutter-l" @click="getUserConf">同步</Button></Tooltip>
-                            <Tooltip placement="top" content="保存当前配置到服务器"><Button type="ghost" class="btn-gutter-l" @click="saveUserConf">保存</Button></Tooltip>
+                            <!--<Tooltip placement="top" content="恢复本地配置为默认配置"><Button type="ghost" class="btn-gutter-l" @click="resetUserConf">重置</Button></Tooltip>-->
+                            <!--<Tooltip placement="top" content="同步服务器的配置到本地"><Button type="ghost" class="btn-gutter-l" @click="getUserConf">同步</Button></Tooltip>-->
+                            <!--<Tooltip placement="top" content="保存当前配置到服务器"><Button type="ghost" class="btn-gutter-l" @click="saveUserConf">保存</Button></Tooltip>-->
                             <Button type="primary" class="btn-gutter-l" @click="setVisible=false">关闭</Button>
                         </div>
                     </div>
@@ -364,12 +365,14 @@ var themeList = [
                 themeList: themeList,
             }
         },
+        beforeCreate () {
+            getUserConf(this);
+        },
         created () {
             // 组件创建完后获取数据，
             // 此时 data 已经被 observed 了
             this.fetchContent();
             this.fetchCatalogs();
-            //this.getUserConf();
         },
         watch: {
             // 如果路由有变化，会再次执行该方法
@@ -378,6 +381,10 @@ var themeList = [
                 this.loading = true;
                 this.fetchContent();
                 this.fetchCatalogs();
+            },
+            themeList: function () {
+                // 直接在这里监听的话，载入页面时加载用户配置也会更改 themeList 导致指出 setEvHandler
+                //this.setEvHandler();
             },
         },
         methods: {
@@ -414,14 +421,18 @@ var themeList = [
                 const tmpTheme = Object.assign({}, this.theme);
                 const t = new themeListItem(this.themeList.length, tmpTheme);
                 this.themeList.push(t);
+                this.setEvHandler();
+            },
+            delTheme () {
+                this.setEvHandler();
             },
             useTheme (t) {
                 const tmpTheme = Object.assign({}, t.theme); 
                 this.theme = tmpTheme;
+                this.setEvHandler();
             },
             saveUserConf () {
-                let conf = new userConf(this.theme, this.themeList);
-                saveUserConf(this, conf);
+                saveUserConf(this);
             },
             getUserConf () {
                 let self = this;
@@ -430,6 +441,11 @@ var themeList = [
             resetUserConf () {
                 this.theme = Object.assign({}, defaultTheme);
                 this.themeList = [defaultThemeListItem, darkThemeListItem];
+            },
+            setEvHandler () {
+                console.log("setEvHandler");
+                //console.log("theme: " + JSON.stringify(this.theme));
+                saveUserConf(this);
             },
         }
 
@@ -508,7 +524,9 @@ var themeList = [
         self.$router.push({ path: p })
     }
 
-    function saveUserConf(self, conf){
+    function saveUserConf(self){
+        let conf = new userConf(self.theme, self.themeList);
+
         let confPath = "/api/reader/txt/user/conf";
         axios.post(confPath, conf).then(function(res){
             console.log(res)
@@ -525,7 +543,7 @@ var themeList = [
 
     function getUserConf(self){
         console.log("get user conf: " + confUrl);
-        //printUserConf(self);
+        printUserConf(self);
         axios.get(confUrl).then(function(response){
             if (response.status != 200) {
                 self.$Message.warning({duration: 15, closable: true, content: "then: 同步服务端配置到本地出错：" + response.status});
