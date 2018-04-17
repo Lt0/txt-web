@@ -19,6 +19,12 @@
         border-color: #fff;
         mix-blend-mode: difference;
     }
+
+    .footer{
+        color: #777;
+        mix-blend-mode: difference;
+    }
+
     .caption-list-item{
         width: 250px;
         text-align: left;
@@ -263,7 +269,7 @@
         </div>
     </div>
 
-    <Footer class="layout-footer-center" :style="{color: '#80848f', background: 'transparent'}">2018 &copy; lightimehpq@gmail.com</Footer>
+    <Footer class="layout-footer-center footer" :style="{background: 'transparent'}">2018 &copy; lightimehpq@gmail.com</Footer>
 </div>
 </template>
 <script>
