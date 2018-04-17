@@ -88,7 +88,6 @@
     }
     #center{
         min-height: 800px;
-        width: 800px;
         margin: 25px auto;
     }
     #right{
@@ -197,7 +196,7 @@
                                     <Option v-for="item in fontList" :value="item.name" :key="item.index">{{ item.name }}</Option>
                                 </Select>
                                 <Button type="ghost" size="small" class="btn-gutter" @click="theme.font=defaultTheme.font">默认</Button>
-                                <span class="btn-gutter-l">繁体<i-switch class="btn-gutter-l" size="small"></i-switch></span>
+                                <!--<span class="btn-gutter-l">繁体<i-switch class="btn-gutter-l" size="small"></i-switch></span>-->
 
                             <div class="set-item">
                                 <div>字体大小</div>
@@ -207,7 +206,12 @@
                         </div>
 
                         <div id="set-gutter" class="set-group">
-                            <div class="set-title">间距设置</div>
+                            <div class="set-item">
+                                <div>纸张大小</div>
+                                <div class="slider btn-gutter-l"><Slider v-model="theme.pageWidth" show-input :min="100" :max="1700"></Slider></div>
+                                <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.pageWidth=defaultTheme.pageWidth">默认</Button></Tooltip>
+                            </div>
+
                             <div class="set-item">
                                 <div> 文字间隔</div>
                                 <div class="slider btn-gutter-l"><Slider v-model="theme.letterSpacing" show-input :min="-2" :max="20"></Slider></div>
@@ -257,7 +261,7 @@
         <div id="left" v-on:click="goPrev">
             <Button id="goPrev" type="text" shape="circle" icon="ios-arrow-back" class="btn"></Button>
         </div>
-        <div id="center" :style="{color: theme.fontColor, background: theme.fontBg , fontSize: theme.fontSize+'%', lineHeight: theme.lineHeight+'%', letterSpacing: theme.letterSpacing+'px', paddingLeft: theme.vPadding+'px', paddingRight: theme.vPadding+'px', paddingTop: theme.hPadding+'px', paddingBottom: theme.hPadding+'px',}">
+        <div id="center" :style="{color: theme.fontColor, background: theme.fontBg , fontSize: theme.fontSize+'%', lineHeight: theme.lineHeight+'%', letterSpacing: theme.letterSpacing+'px', paddingLeft: theme.vPadding+'px', paddingRight: theme.vPadding+'px', paddingTop: theme.hPadding+'px', paddingBottom: theme.hPadding+'px', width: theme.pageWidth+'px'}">
             <h2 id="caption-title">{{ captionTitle }}</h2>
             <p id="content">{{ content }}</p>
         </div>
@@ -276,7 +280,7 @@ let rootPath = '/static/cache/books/';
 let confUrl = '/static/cache/conf/user.conf';
 
 const colors = ['#1c2438', '#495060', '#80848f', '#bbbec4', '#dddee1', '#e9eaec', '#f8f8f9', '#EFF3F6', '#f5f7f9', '#fff'];
-function theme(hdrBg, bg, fontBg, fontColor, font, fontSize, lineHeight, vPadding, hPadding, letterSpacing) {
+function theme(hdrBg, bg, fontBg, fontColor, font, fontSize, lineHeight, vPadding, hPadding, letterSpacing, pageWidth) {
     this.hdrBg = hdrBg;
     this.bg = bg;
     this.fontBg = fontBg;
@@ -287,6 +291,7 @@ function theme(hdrBg, bg, fontBg, fontColor, font, fontSize, lineHeight, vPaddin
     this.vPadding = vPadding;
     this.hPadding = hPadding;
     this.latterSpacing = letterSpacing;
+    this.pageWidth = pageWidth;
 }
 function themeListItem(name, theme) {
     this.name = name;
@@ -308,6 +313,7 @@ const defaultTheme = {
     vPadding: 50,
     hPadding: 50,
     letterSpacing: 0,
+    pageWidth: 800,
     };
 
 const darkTheme = {
@@ -321,6 +327,7 @@ const darkTheme = {
     vPadding: 50,
     hPadding: 50,
     letterSpacing: 0,
+    pageWidth: 800,
     };
 
 const fontList = [
