@@ -275,6 +275,7 @@ import axios from 'axios'
 let rootPath = '/static/cache/books/';
 let confUrl = '/static/cache/conf/user.conf';
 
+const colors = ['#1c2438', '#495060', '#80848f', '#bbbec4', '#dddee1', '#e9eaec', '#f8f8f9', '#EFF3F6', '#f5f7f9', '#fff'];
 function theme(hdrBg, bg, fontBg, fontColor, font, fontSize, lineHeight, vPadding, hPadding, letterSpacing) {
     this.hdrBg = hdrBg;
     this.bg = bg;
@@ -347,7 +348,7 @@ var themeList = [
                 captionTitle: null,
                 loading: true,
                 setVisible: false,
-                colors: ['#1c2438', '#495060', '#80848f', '#bbbec4', '#dddee1', '#e9eaec', '#f8f8f9', '#EFF3F6', '#f5f7f9', '#fff'],
+                colors: colors,
                 fontList: fontList,
                 defaultTheme: defaultTheme,
                 theme: Object.assign({}, defaultTheme),
@@ -411,7 +412,7 @@ var themeList = [
             },
             saveUserConf () {
                 let conf = new userConf(this.theme, this.themeList);
-                saveUserConf(conf);
+                saveUserConf(this, conf);
             },
             getUserConf () {
                 let self = this;
@@ -498,22 +499,27 @@ var themeList = [
         self.$router.push({ path: p })
     }
 
-    function saveUserConf(conf){
-        let confPath = rootPath + "/user.conf";
-        console.log("saveUserConf: confPath: " + confPath);
-        axios.post(confPath, conf).then(function(response){
-            //if (response.status == )
-        }).catch(function(response){
-            console.log(response);
+    function saveUserConf(self, conf){
+        let confPath = "/api/reader/txt/user/conf";
+        axios.post(confPath, conf).then(function(res){
+            console.log(res)
+            if (res.data == null || res.data == "") {
+                self.$Message.info("保存成功");
+            } else {
+                self.$Message.error({duration: 15, closable: true, content: "保存出错: " + res.data});
+            }
+        }).catch(function(err){
+            console.log(err);
+            self.$Message.error({duration: 15, closable: true, content: "连接出错: " + err});
         });
     }
 
     function getUserConf(self){
         console.log("get user conf: " + confUrl);
-        printUserConf(self);
+        //printUserConf(self);
         axios.get(confUrl).then(function(response){
             if (response.status != 200) {
-                self.$Message.warning("then: 同步服务端配置到本地出错：" + response.status);
+                self.$Message.warning({duration: 15, closable: true, content: "then: 同步服务端配置到本地出错：" + response.status});
                 return;
             }
 
@@ -521,13 +527,13 @@ var themeList = [
                 self.$Message.info("服务端没有配置");
                 return;
             }
-            console.log(response);
+
             let conf = response.data;
             self.theme = conf.theme;
             self.themeList = conf.themeList;
             self.$Message.info("服务端配置已同步到本地");
         }).catch(function(error){
-            self.$Message.error("同步服务端配置到本地失败: " + error);
+            self.$Message.error({duration: 15, closable: true, content: "同步服务端配置到本地失败: " + error});
         });
     }
 
