@@ -91,12 +91,12 @@
     #goNext{
         position: fixed;
         top: 50%;
-        right: 50px;
+        right: 20px;
     }
     #goPrev{
         position: fixed;
         top: 50%;
-        left: 50px;
+        left: 20px;
     }
 
     #caption-title{
@@ -194,12 +194,12 @@
                         </div>
 
                         <div id="set-font" class="set-group">
-                            <div class="set-title">字体设置</div>字体：
-                                <Select v-model="theme.font" placeholder=theme.font size="small" style="width:150px">
+                            <div class="set-title">字体设置</div>字体
+                                <Select v-model="theme.font" placeholder=theme.font size="small" style="width:150px" class="btn-gutter-l">
                                     <Option v-for="item in fontList" :value="item.name" :key="item.index">{{ item.name }}</Option>
                                 </Select>
                                 <Button type="ghost" size="small" class="btn-gutter" @click="theme.font=defaultTheme.font">默认</Button>
-                                <span class="btn-gutter-l">繁体：<i-switch size="small"></i-switch></span>
+                                <span class="btn-gutter-l">繁体<i-switch class="btn-gutter-l" size="small"></i-switch></span>
 
                             <div class="set-item">
                                 <div>字体大小</div>
@@ -239,8 +239,8 @@
                         </div>
                         
                         <div style="text-align: right; margin-top: 10px">
-                            <Button type="ghost" class="btn-gutter-l" @click="theme = defaultTheme">重置</Button>
-                            <Button type="ghost" class="btn-gutter-l" @click="addTheme">保存</Button>
+                            <Tooltip content="恢复到默认配置"><Button type="ghost" class="btn-gutter-l" @click="theme = defaultTheme">重置</Button></Tooltip>
+                            <Tooltip content="保存当前配置为新主题"><Button type="ghost" class="btn-gutter-l" @click="addTheme">保存</Button></Tooltip>
                             <Button type="primary" class="btn-gutter-l" @click="setVisible=false">关闭</Button>
                         </div>
                     </div>
@@ -250,12 +250,16 @@
     </div>
 
     <div id="main">
-        <div id="left" v-on:click="goPrev"><Icon id="goPrev" type="chevron-left"></Icon></div>
+        <div id="left" v-on:click="goPrev">
+            <Button id="goPrev" type="text" shape="circle" icon="ios-arrow-back" class="btn"></Button>
+        </div>
         <div id="center" :style="{color: theme.fontColor, background: theme.fontBg , fontSize: theme.fontSize+'%', lineHeight: theme.lineHeight+'%', letterSpacing: theme.letterSpacing+'px', paddingLeft: theme.vPadding+'px', paddingRight: theme.vPadding+'px', paddingTop: theme.hPadding+'px', paddingBottom: theme.hPadding+'px',}">
             <h2 id="caption-title">{{ captionTitle }}</h2>
             <p id="content">{{ content }}</p>
         </div>
-        <div id="right" v-on:click="goNext"><Icon id="goNext" type="chevron-right"></Icon></div>
+        <div id="right" v-on:click="goNext">
+            <Button id="goNext" type="text" shape="circle" icon="ios-arrow-forward" class="btn"></Button>
+        </div>
     </div>
 
     <Footer class="layout-footer-center" :style="{color: '#80848f', background: 'transparent'}">2018 &copy; lightimehpq@gmail.com</Footer>
@@ -283,9 +287,9 @@ function themeListItem(name, theme) {
     this.theme = theme;
 }
 
-var curTheme = new theme('#1c2438', '#f5f7f9', '#fff', '#495060', '', 120, 200, 50, 50, 0);
-const defaultTheme = new theme('#1c2438', '#f5f7f9', '#fff', '#495060', '', 120, 200, 50, 50, 0);
-const darkTheme = new theme('#1c2438', '#f5f7f9', '#fff', '#495060', '', 120, 200, 50, 50, 0);
+var curTheme = new theme('#EFF3F6', '#f5f7f9', '#fff', '#495060', '', 120, 200, 50, 50, 0);
+const defaultTheme = new theme('#EFF3F6', '#f5f7f9', '#fff', '#495060', '', 120, 200, 50, 50, 0);
+const darkTheme = new theme('#EFF3F6', '#f5f7f9', '#fff', '#495060', '', 120, 200, 50, 50, 0);
 const fontList = [
     {name: 'Helvetica Neue'}, 
     {name: 'Helvetica'}, 
@@ -309,7 +313,7 @@ var themeList = [
                 captionTitle: null,
                 loading: true,
                 setVisible: false,
-                colors: ['#1c2438', '#495060', '#80848f', '#bbbec4', '#dddee1', '#e9eaec', '#f8f8f9', '#f5f7f9', '#fff'],
+                colors: ['#1c2438', '#495060', '#80848f', '#bbbec4', '#dddee1', '#e9eaec', '#f8f8f9', '#EFF3F6', '#f5f7f9', '#fff'],
                 fontList: fontList,
                 defaultTheme: defaultTheme,
                 theme: curTheme,
