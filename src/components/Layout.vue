@@ -208,7 +208,7 @@
                         <div id="set-gutter" class="set-group">
                             <div class="set-item">
                                 <div>纸张大小</div>
-                                <div class="slider btn-gutter-l"><Slider v-model="theme.pageWidth" show-input :min="100" :max="1700"></Slider></div>
+                                <div class="slider btn-gutter-l"><Slider v-model="theme.pageWidth" show-input :min="0" :max="500"></Slider></div>
                                 <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.pageWidth=defaultTheme.pageWidth">默认</Button></Tooltip>
                             </div>
 
@@ -261,7 +261,7 @@
         <div id="left" v-on:click="goPrev">
             <Button id="goPrev" type="text" shape="circle" icon="ios-arrow-back" class="btn"></Button>
         </div>
-        <div id="center" :style="{color: theme.fontColor, background: theme.fontBg , fontSize: theme.fontSize+'%', lineHeight: theme.lineHeight+'%', letterSpacing: theme.letterSpacing+'px', paddingLeft: theme.vPadding+'px', paddingRight: theme.vPadding+'px', paddingTop: theme.hPadding+'px', paddingBottom: theme.hPadding+'px', width: theme.pageWidth+'px'}">
+        <div id="center" :style="{color: theme.fontColor, background: theme.fontBg , fontSize: theme.fontSize+'%', lineHeight: theme.lineHeight+'%', letterSpacing: theme.letterSpacing+'px', paddingLeft: theme.vPadding+'px', paddingRight: theme.vPadding+'px', paddingTop: theme.hPadding+'px', paddingBottom: theme.hPadding+'px', width: (theme.pageWidth*basePageWidth)+'px'}">
             <h2 id="caption-title">{{ captionTitle }}</h2>
             <p id="content">{{ content }}</p>
         </div>
@@ -280,6 +280,7 @@ let rootPath = '/static/cache/books/';
 let confUrl = '/static/cache/conf/user.conf';
 
 const colors = ['#1c2438', '#495060', '#80848f', '#bbbec4', '#dddee1', '#e9eaec', '#f8f8f9', '#EFF3F6', '#f5f7f9', '#fff'];
+const basePageWidth = 8;
 function theme(hdrBg, bg, fontBg, fontColor, font, fontSize, lineHeight, vPadding, hPadding, letterSpacing, pageWidth) {
     this.hdrBg = hdrBg;
     this.bg = bg;
@@ -291,7 +292,7 @@ function theme(hdrBg, bg, fontBg, fontColor, font, fontSize, lineHeight, vPaddin
     this.vPadding = vPadding;
     this.hPadding = hPadding;
     this.latterSpacing = letterSpacing;
-    this.pageWidth = pageWidth;
+    this.pageWidth = pageWidth;             // width = pageWidth*basePageWidth + 'px'
 }
 function themeListItem(name, theme) {
     this.name = name;
@@ -313,7 +314,7 @@ const defaultTheme = {
     vPadding: 50,
     hPadding: 50,
     letterSpacing: 0,
-    pageWidth: 800,
+    pageWidth: 100,
     };
 
 const darkTheme = {
@@ -327,7 +328,7 @@ const darkTheme = {
     vPadding: 50,
     hPadding: 50,
     letterSpacing: 0,
-    pageWidth: 800,
+    pageWidth: 100,
     };
 
 const fontList = [
@@ -357,6 +358,7 @@ var themeList = [
                 setVisible: false,
                 colors: colors,
                 fontList: fontList,
+                basePageWidth: basePageWidth,
                 defaultTheme: defaultTheme,
                 theme: Object.assign({}, defaultTheme),
                 themeList: themeList,
