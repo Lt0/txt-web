@@ -189,14 +189,6 @@
                                 <div class="btn-gutter-l">页首: <ColorPicker v-model="theme.hdrBg" :colors="colors" size="small"/></div>
                                 
                             </div>
-                            
-                        </div>
-
-                        <div id="set-theme" class="set-group">
-                            <div class="set-title">主题设置</div>
-                            <div class="theme-list">
-                                <div class="theme-item" v-for="t in themeList" :key="t.index" @click="useTheme(t)" :style="{background: t.theme.bg, color: t.theme.fontColor}"><div :style="{background: t.theme.fontBg, padding: '10px', maxWidth: '90%'}">{{ t.name }}</div></div>
-                            </div>
                         </div>
 
                         <div id="set-font" class="set-group">
@@ -222,32 +214,37 @@
                                 <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.letterSpacing=defaultTheme.letterSpacing">默认</Button></Tooltip>
                             </div>
 
-                            
                             <div class="set-item">
                                 <div> 上下边距 </div>
                                 <div class="slider btn-gutter-l"><Slider v-model="theme.hPadding" show-input :max="200"></Slider></div>
                                 <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.hPadding=defaultTheme.hPadding">默认</Button></Tooltip>
                             </div>
 
-                            
                             <div class="set-item">
                                 <div> 行&ensp;间&ensp;距 </div>
                                 <div class="slider btn-gutter-l"><Slider v-model="theme.lineHeight" show-input :max="500"></Slider></div>
                                 <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.lineHeight=defaultTheme.lineHeight">默认</Button></Tooltip>
                             </div>
 
-                            
                             <div class="set-item">
                                 <div> 左右边距 </div>
                                 <div class="slider btn-gutter-l"><Slider v-model="theme.vPadding" show-input></Slider></div>
                                 <Tooltip content="主题的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.vPadding=defaultTheme.vPadding">默认</Button></Tooltip>
                             </div>
                         </div>
-                        
+
+                        <div id="set-theme" class="set-group">
+                            <div class="set-title">主题设置</div>
+                            <div class="theme-list">
+                                <div class="theme-item" v-for="t in themeList" :key="t.index" @click="useTheme(t)" :style="{background: t.theme.bg, color: t.theme.fontColor}"><div :style="{background: t.theme.fontBg, padding: '10px', maxWidth: '90%'}">{{ t.name }}</div></div>
+                            </div>
+                        </div>
+
                         <div style="text-align: right; margin-top: 10px">
-                            <Tooltip content="根据当前配置创建新主题"><Button type="ghost" class="btn-gutter-l" @click="addTheme">新建主题</Button></Tooltip>
-                            <Tooltip content="恢复到默认配置"><Button type="ghost" class="btn-gutter-l" @click="theme = defaultTheme">重置</Button></Tooltip>
-                            <Tooltip content="保存当前所有主题和配置到服务器"><Button type="ghost" class="btn-gutter-l" @click="saveUserConfig">保存</Button></Tooltip>
+                            <Tooltip content="保存当前的配置为新主题"><Button type="ghost" class="btn-gutter-l" @click="addTheme">保存为主题</Button></Tooltip>
+                            <Tooltip content="恢复本地配置为默认配置"><Button type="ghost" class="btn-gutter-l" @click="resetUserConf">重置</Button></Tooltip>
+                            <Tooltip content="同步服务器的配置到本地"><Button type="ghost" class="btn-gutter-l" @click="getUserConf">同步</Button></Tooltip>
+                            <Tooltip content="保存当前配置到服务器"><Button type="ghost" class="btn-gutter-l" @click="saveUserConf">保存</Button></Tooltip>
                             <Button type="primary" class="btn-gutter-l" @click="setVisible=false">关闭</Button>
                         </div>
                     </div>
@@ -276,6 +273,7 @@
 import axios from 'axios'
 
 let rootPath = '/static/cache/books/';
+let confUrl = '/static/cache/conf/user.conf';
 
 function theme(hdrBg, bg, fontBg, fontColor, font, fontSize, lineHeight, vPadding, hPadding, letterSpacing) {
     this.hdrBg = hdrBg;
@@ -293,10 +291,37 @@ function themeListItem(name, theme) {
     this.name = name;
     this.theme = theme;
 }
+function userConf(theme, themeList) {
+    this.theme = theme;
+    this.themeList = themeList;
+}
 
-var curTheme = new theme('#EFF3F6', '#f5f7f9', '#fff', '#495060', '', 120, 200, 50, 50, 0);
-const defaultTheme = new theme('#EFF3F6', '#f5f7f9', '#fff', '#495060', '', 120, 200, 50, 50, 0);
-const darkTheme = new theme('#1C2438', '#495060', '#39404F', '#E9EAEC', '', 120, 200, 50, 50, 0);
+const defaultTheme = {
+    hdrBg: '#EFF3F6', 
+    bg: '#f5f7f9', 
+    fontBg: '#fff', 
+    fontColor: '#495060',
+    font: "",
+    fontSize: 120,
+    lineHeight: 200,
+    vPadding: 50,
+    hPadding: 50,
+    letterSpacing: 0,
+    };
+
+const darkTheme = {
+    hdrBg: '#1C2438', 
+    bg: '#495060', 
+    fontBg: '#39404F', 
+    fontColor: '#E9EAEC',
+    font: "",
+    fontSize: 120,
+    lineHeight: 200,
+    vPadding: 50,
+    hPadding: 50,
+    letterSpacing: 0,
+    };
+
 const fontList = [
     {name: 'Helvetica Neue'}, 
     {name: 'Helvetica'}, 
@@ -325,7 +350,7 @@ var themeList = [
                 colors: ['#1c2438', '#495060', '#80848f', '#bbbec4', '#dddee1', '#e9eaec', '#f8f8f9', '#EFF3F6', '#f5f7f9', '#fff'],
                 fontList: fontList,
                 defaultTheme: defaultTheme,
-                theme: curTheme,
+                theme: Object.assign({}, defaultTheme),
                 themeList: themeList,
             }
         },
@@ -334,6 +359,7 @@ var themeList = [
             // 此时 data 已经被 observed 了
             this.fetchContent();
             this.fetchCatalogs();
+            //this.getUserConf();
         },
         watch: {
             // 如果路由有变化，会再次执行该方法
@@ -342,108 +368,83 @@ var themeList = [
                 this.loading = true;
                 this.fetchContent();
                 this.fetchCatalogs();
-            }
+            },
         },
         methods: {
             fetchCatalogs () {
-                var self = this;
-
-                let file = self.$route.params.file;
-                let catalogUrl = rootPath + file + "/" + "catalog.txt";
-                console.log("catalogUrl: " + catalogUrl);
-
-                axios.get(catalogUrl).then(function(response){
-                    splitCatalogs(response.data, self);
-
-                    let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
-                    let i = caption.replace(/.txt$/, "")
-                    //console.log("i: " + i);
-                    let captionTitle = self.catalogs[parseInt(i)-1].text
-                    captionTitle = captionTitle.replace(/^.*: /, "");
-                    //console.log("captionTitle: " + captionTitle);
-                    self.captionTitle = captionTitle;
-
-                    let t = document.getElementsByTagName("title")[0];
-                    t.innerHTML = file;
-
-                }).catch(function(error){
-                    console.log(error);
-                });
+                let self = this;
+                fetchCatalogs(this);
             },
             fetchContent () {
-                console.log("fetchContent");
                 var self = this;
-
-                let file = self.$route.params.file;
-                let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
-                let contentUrl = rootPath + file + "/" + caption;
-                console.log("contentUrl: " + contentUrl);
-
-                
-                
-                axios.get(contentUrl).then(function(response){
-                    self.loading = false;
-                    self.content = response.data;
-                }).catch(function(error){
-                    console.log(error);
-                });
-                
+                fetchContent(self)
             },
             goCaption (val) {
-                console.log("goCaption: " + val);
                 let p = "/" + this.$route.params.file + "/" + val;
                 this.$router.push({ path: p })
             },
             goPrev () {
-                //console.log("go previous");
                 let self = this;
-
-                let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
-                let index = caption.replace(/.txt$/, "")
-                let prevIndex = (parseInt(index)-1);
-                if (prevIndex < 1) return;
-
-                let prevCaption = prevIndex + ".txt";
-                let p = "/" + this.$route.params.file + "/" + prevCaption;
-                this.$router.push({ path: p })
+                goPrev(self);
             },
             goNext () {
-                //console.log("go next")
                 let self = this;
-
-                let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
-                let index = caption.replace(/.txt$/, "")
-                let nextIndex = (parseInt(index)+1);
-                if ((nextIndex-1) >= self.catalogs.length) return;
-
-                let nextCaption = nextIndex + ".txt";
-                let p = "/" + this.$route.params.file + "/" + nextCaption;
-                this.$router.push({ path: p })
+                goNext(self)
             },
             minusFont () {
-                console.log("minusFont");
                 if (this.theme.fontSize <= 10) return;
                 this.theme.fontSize -= 10;
                 this.$Message.info('字体大小: ' + this.theme.fontSize + "%");
             },
             plusFont () {
-                console.log("plusFont");
                 this.theme.fontSize += 10;
                 this.$Message.info('字体大小: ' + this.theme.fontSize + "%");
             },
             addTheme () {
-                console.log("addTheme");
                 const tmpTheme = Object.assign({}, this.theme);
                 const t = new themeListItem(this.themeList.length, tmpTheme);
                 this.themeList.push(t);
             },
             useTheme (t) {
-                console.log("useTheme: " + t.name);
                 const tmpTheme = Object.assign({}, t.theme); 
                 this.theme = tmpTheme;
             },
+            saveUserConf () {
+                let conf = new userConf(this.theme, this.themeList);
+                saveUserConf(conf);
+            },
+            getUserConf () {
+                let self = this;
+                getUserConf(self);
+            },
+            resetUserConf () {
+                this.theme = Object.assign({}, defaultTheme);
+                this.themeList = [defaultThemeListItem, darkThemeListItem];
+            },
         }
 
+    }
+
+    function fetchCatalogs (self) {
+        let file = self.$route.params.file;
+        let catalogUrl = rootPath + file + "/" + "catalog.txt";
+        console.log("catalogUrl: " + catalogUrl);
+
+        axios.get(catalogUrl).then(function(response){
+            splitCatalogs(response.data, self);
+
+            let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
+            let i = caption.replace(/.txt$/, "")
+            let captionTitle = self.catalogs[parseInt(i)-1].text
+            captionTitle = captionTitle.replace(/^.*: /, "");
+            self.captionTitle = captionTitle;
+
+            let t = document.getElementsByTagName("title")[0];
+            t.innerHTML = file;
+
+        }).catch(function(error){
+            console.log(error);
+        });
     }
 
     function splitCatalogs(catalogsStr, self) {
@@ -459,5 +460,81 @@ var themeList = [
             item.text = (i+1) +": " + cls[i];
             self.catalogs.push(item);
         }
+    }
+
+    function fetchContent(self) {
+        let file = self.$route.params.file;
+        let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
+        let contentUrl = rootPath + file + "/" + caption;
+        console.log("contentUrl: " + contentUrl);
+
+        axios.get(contentUrl).then(function(response){
+            self.loading = false;
+            self.content = response.data;
+        }).catch(function(error){
+            console.log(error);
+        });
+    }
+
+    function goPrev(self) {
+        let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
+        let index = caption.replace(/.txt$/, "")
+        let prevIndex = (parseInt(index)-1);
+        if (prevIndex < 1) return;
+
+        let prevCaption = prevIndex + ".txt";
+        let p = "/" + self.$route.params.file + "/" + prevCaption;
+        self.$router.push({ path: p })
+    }
+
+    function goNext(self) {
+        let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
+        let index = caption.replace(/.txt$/, "")
+        let nextIndex = (parseInt(index)+1);
+        if ((nextIndex-1) >= self.catalogs.length) return;
+
+        let nextCaption = nextIndex + ".txt";
+        let p = "/" + self.$route.params.file + "/" + nextCaption;
+        self.$router.push({ path: p })
+    }
+
+    function saveUserConf(conf){
+        let confPath = rootPath + "/user.conf";
+        console.log("saveUserConf: confPath: " + confPath);
+        axios.post(confPath, conf).then(function(response){
+            //if (response.status == )
+        }).catch(function(response){
+            console.log(response);
+        });
+    }
+
+    function getUserConf(self){
+        console.log("get user conf: " + confUrl);
+        printUserConf(self);
+        axios.get(confUrl).then(function(response){
+            if (response.status != 200) {
+                self.$Message.warning("then: 同步服务端配置到本地出错：" + response.status);
+                return;
+            }
+
+            if (!response.data) {
+                self.$Message.info("服务端没有配置");
+                return;
+            }
+            console.log(response);
+            let conf = response.data;
+            self.theme = conf.theme;
+            self.themeList = conf.themeList;
+            self.$Message.info("服务端配置已同步到本地");
+        }).catch(function(error){
+            self.$Message.error("同步服务端配置到本地失败: " + error);
+        });
+    }
+
+    function printUserConf(self) {
+        console.log("========================================");
+        let conf = new userConf(self.theme, self.themeList);
+        console.log(JSON.stringify(conf));
+        console.log("========================================");
     }
 </script>
