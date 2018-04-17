@@ -111,7 +111,7 @@
 
     #setArea {
         width: 600px;
-        height: 680px;
+        
         padding: 0px 30px;
     }
     .set-group{
@@ -240,11 +240,11 @@
                             </div>
                         </div>
 
-                        <div style="text-align: right; margin-top: 10px">
-                            <Tooltip content="保存当前的配置为新主题"><Button type="ghost" class="btn-gutter-l" @click="addTheme">保存为主题</Button></Tooltip>
-                            <Tooltip content="恢复本地配置为默认配置"><Button type="ghost" class="btn-gutter-l" @click="resetUserConf">重置</Button></Tooltip>
-                            <Tooltip content="同步服务器的配置到本地"><Button type="ghost" class="btn-gutter-l" @click="getUserConf">同步</Button></Tooltip>
-                            <Tooltip content="保存当前配置到服务器"><Button type="ghost" class="btn-gutter-l" @click="saveUserConf">保存</Button></Tooltip>
+                        <div style="text-align: right; margin: 10px 0px 20px 0px">
+                            <Tooltip placement="top" content="保存当前的配置为新主题"><Button type="ghost" class="btn-gutter-l" @click="addTheme">保存为主题</Button></Tooltip>
+                            <Tooltip placement="top" content="恢复本地配置为默认配置"><Button type="ghost" class="btn-gutter-l" @click="resetUserConf">重置</Button></Tooltip>
+                            <Tooltip placement="top" content="同步服务器的配置到本地"><Button type="ghost" class="btn-gutter-l" @click="getUserConf">同步</Button></Tooltip>
+                            <Tooltip placement="top" content="保存当前配置到服务器"><Button type="ghost" class="btn-gutter-l" @click="saveUserConf">保存</Button></Tooltip>
                             <Button type="primary" class="btn-gutter-l" @click="setVisible=false">关闭</Button>
                         </div>
                     </div>
