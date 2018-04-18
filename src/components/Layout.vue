@@ -623,7 +623,7 @@ var themeList = [
                 showHelp();
                 break;
             case "about":
-                showAbout();
+                showAbout(self);
                 break;
             case "download":
                 download(self);
@@ -670,8 +670,13 @@ var themeList = [
         console.log("showHelp");
     }
 
-    function showAbout () {
+    function showAbout (self) {
         console.log("showAbout");
+        self.$Modal.info({
+            title: "Athena TXT Reader",
+            content: "<a href='https://github.com/Lt0/txt-web' target='_blank'>https://github.com/Lt0/txt-web</a>",
+            closable: true,
+        });
     }
 
     function download(self){
