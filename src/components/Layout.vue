@@ -207,7 +207,7 @@
 
                         <div id="set-font" class="set-group">
                             <div class="set-title">字体设置</div>字体
-                                <Select v-model="theme.font" placeholder=theme.font size="small" style="width:150px" class="btn-gutter-l" @on-change="setEvHandler">
+                                <Select v-model="theme.font" placeholder=theme.font size="small" filterable style="width:150px" class="btn-gutter-l" @on-change="setEvHandler">
                                     <Option v-for="item in fontList" :value="item.name" :key="item.index">{{ item.name }}</Option>
                                 </Select>
                                 <!-- 如果已设置过字体，点击默认是会触发 select 的 on-change 事件，这里不需要再绑定 on-change 事件 -->
