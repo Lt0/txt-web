@@ -7,9 +7,7 @@
 
         overflow: hidden;
     }
-    #hdr{
-        
-    }
+    #hdr{}
     #hdr-container{
         display: flex;
 
@@ -18,14 +16,7 @@
     }
     #main{
         flex-grow: 1;
-
         overflow: auto;
-    }
-    #main-layout{
-        display: flex;
-        justify-content: center;
-
-        
     }
     .footer{
         color: #777;
@@ -97,6 +88,10 @@
         margin-left: 16px;
     }
 
+    #main-layout{
+        display: flex;
+        justify-content: center;
+    }
     #left{
         flex-grow: 1;
         cursor: pointer;
