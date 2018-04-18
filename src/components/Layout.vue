@@ -397,6 +397,7 @@ var themeList = [
         },
         beforeCreate () {
             getUserConf(this);
+            keyupHandler(this);
         },
         created () {
             // 组件创建完后获取数据，
@@ -690,5 +691,21 @@ var themeList = [
         
         a.click();
         document.body.removeChild(a);
+    }
+
+    function keyupHandler(self){
+        console.log("keyHandler");
+        document.onkeyup = function(ev){
+            console.log("keyHandler");
+            switch (ev.keyCode) {
+                case 37: //left
+                    self.goPrev();
+                    break;
+                case 39: //right
+                    self.goNext();
+                    break;
+                default:
+            }
+        }
     }
 </script>
