@@ -173,9 +173,18 @@
         <div id="hdr-center"></div>
         <div id="hdr-right">
             <Button type="text" shape="circle" icon="bookmark" class="btn hdr-btn"></Button>
-            <Tooltip content="跳转">
-                <Button type="text" shape="circle" icon="forward" class="btn hdr-btn hdr-btn-gutter-l" @click="jump"></Button>
-            </Tooltip>
+
+            <!-- 标题栏跳转按钮 -->
+            <Dropdown placement="bottom-center" trigger="custom" class="caption-list" transfer :visible="jumpVisible">
+                <Tooltip content="跳转">
+                    <Button type="text" shape="circle" icon="forward" class="btn hdr-btn hdr-btn-gutter-l" @click="jumpVisible? jumpVisible=false: jumpVisible=true"></Button>
+                </Tooltip>
+                <DropdownMenu slot="list">
+                    <div class="slider btn-gutter-l" style="width: 300px; height: 100px"><Slider show-input :step="0.01"></Slider></div>
+                </DropdownMenu>
+            </Dropdown>
+
+            <!-- 标题栏章节按钮 -->
             <Dropdown id="captions" placement="bottom-end" trigger="click" class="caption-list" transfer @on-click="goCaption">
                 <Button type="text" shape="circle" icon="navicon-round" class="btn hdr-btn hdr-btn-gutter-l"></Button>
                 <DropdownMenu slot="list">
@@ -183,6 +192,7 @@
                 </DropdownMenu>
             </Dropdown>
 
+            <!-- 标题栏设置按钮 -->
             <Dropdown id="setting" placement="bottom-end" trigger="custom" transfer :visible="setVisible">
                 <Button type="text" size="large" shape="circle" icon="ios-gear" class="btn hdr-btn hdr-btn-gutter-l" @click="setVisible? setVisible=false: setVisible=true"></Button>
                 <DropdownMenu slot="list">
@@ -387,6 +397,7 @@ var themeList = [
                 content: null,
                 captionTitle: null,
                 loading: true,
+                jumpVisible: false,
                 setVisible: false,
                 colors: colors,
                 fontList: fontList,
