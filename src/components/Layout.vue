@@ -85,6 +85,7 @@
     }
     #left{
         flex-grow: 1;
+        cursor: pointer;
     }
     #center{
         min-height: 800px;
@@ -92,6 +93,7 @@
     }
     #right{
         flex-grow: 1;
+        cursor: pointer;
     }
     #goNext{
         position: fixed;
