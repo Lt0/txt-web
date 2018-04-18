@@ -622,6 +622,9 @@ var themeList = [
             case "about":
                 showAbout();
                 break;
+            case "download":
+                download(self);
+                break;
             default:
                 console.log("unknow name: " + val);
         }
@@ -637,5 +640,20 @@ var themeList = [
 
     function showAbout () {
         console.log("showAbout");
+    }
+
+    function download(self){
+        let f = self.$route.params.file;
+        let url = rootPath + "/" + f + "/clearFile/" + f;
+        console.log("url: " + url);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = f;
+
+        //append to body to trigger download in firefox
+        document.body.appendChild(a);
+        
+        a.click();
+        document.body.removeChild(a);
     }
 </script>
