@@ -170,14 +170,10 @@
         <div id="hdr-left">{{ captionTitle }}</div>
         <div id="hdr-center"></div>
         <div id="hdr-right">
-            <ButtonGroup>
-                <Tooltip content="fontSize - 10%">
-                    <Button type="text" shape="circle" icon="minus-round" class="btn hdr-btn" @click="minusFont"></Button>
-                </Tooltip>
-                <Tooltip content="fontSize + 10%">
-                    <Button type="text" shape="circle" icon="plus-round" class="btn hdr-btn" @click="plusFont"></Button>
-                </Tooltip>
-            </ButtonGroup>
+            <Button type="text" shape="circle" icon="bookmark" class="btn hdr-btn"></Button>
+            <Tooltip content="跳转">
+                <Button type="text" shape="circle" icon="forward" class="btn hdr-btn hdr-btn-gutter-l" @click="jump"></Button>
+            </Tooltip>
             <Dropdown id="captions" placement="bottom-end" trigger="click" class="caption-list" transfer @on-click="goCaption">
                 <Button type="text" shape="circle" icon="navicon-round" class="btn hdr-btn hdr-btn-gutter-l"></Button>
                 <DropdownMenu slot="list">
@@ -275,6 +271,17 @@
                     </div>
                 </DropdownMenu>
             </Dropdown>
+
+            <Dropdown placement="bottom-end" trigger="click" @on-click="hdrMoreHandler">
+                <Button type="text" shape="circle" icon="ios-more" class="btn hdr-btn hdr-btn-gutter-l"></Button>
+                <DropdownMenu slot="list">
+                    <DropdownItem name="bookInfo">书籍信息</DropdownItem>
+                    <DropdownItem name="download">下&ensp;&ensp;&ensp;&ensp;载</DropdownItem>
+                    <DropdownItem name="help">帮&ensp;&ensp;&ensp;&ensp;助</DropdownItem>
+                    <DropdownItem name="about">关&ensp;&ensp;&ensp;&ensp;于</DropdownItem>
+                </DropdownMenu>
+            </Dropdown>
+            
         </div>
     </div>
 
@@ -416,6 +423,9 @@ var themeList = [
                 var self = this;
                 fetchContent(self)
             },
+            jump () {
+                console.log("jump");
+            },
             goCaption (val) {
                 let p = "/" + this.$route.params.file + "/" + val;
                 this.$router.push({ path: p })
@@ -474,8 +484,10 @@ var themeList = [
                 //console.log("theme: " + JSON.stringify(this.theme));
                 saveUserConf(this);
             },
+            hdrMoreHandler(val) {
+                hdrMoreHandler(this, val);
+            },
         }
-
     }
 
     function fetchCatalogs (self) {
@@ -596,5 +608,34 @@ var themeList = [
         let conf = new userConf(self.theme, self.themeList);
         console.log(JSON.stringify(conf));
         console.log("========================================");
+    }
+
+    function hdrMoreHandler(self, val){
+        console.log("hdrMoreHandler: " + val);
+        switch (val) {
+            case "bookInfo":
+                showBookInfo();
+                break;
+            case "help":
+                showHelp();
+                break;
+            case "about":
+                showAbout();
+                break;
+            default:
+                console.log("unknow name: " + val);
+        }
+    }
+
+    function showBookInfo () {
+        console.log("showBookInfo");
+    }
+    
+    function showHelp () {
+        console.log("showHelp");
+    }
+
+    function showAbout () {
+        console.log("showAbout");
     }
 </script>
