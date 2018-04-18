@@ -379,6 +379,8 @@ var themeList = [
     export default {
         data() {
             return {
+                file: this.$route.params.file,
+                fileInfo: null,
                 catalogs: null,
                 content: null,
                 captionTitle: null,
@@ -390,6 +392,7 @@ var themeList = [
                 defaultTheme: defaultTheme,
                 theme: Object.assign({}, defaultTheme),
                 themeList: themeList,
+                bookInfoModal: false,
             }
         },
         beforeCreate () {
@@ -614,7 +617,7 @@ var themeList = [
         console.log("hdrMoreHandler: " + val);
         switch (val) {
             case "bookInfo":
-                showBookInfo();
+                showBookInfo(self);
                 break;
             case "help":
                 showHelp();
@@ -630,8 +633,37 @@ var themeList = [
         }
     }
 
-    function showBookInfo () {
+    function showBookInfo (self) {
         console.log("showBookInfo");
+        if (self.fileInfo) {
+            showBookInfoModal(self);
+            return;
+        }
+
+        let infoPath = rootPath + self.file + "/info.txt";
+        axios.get(infoPath).then(function(res){
+            if (res.status != 200) {
+                self.$Message.error("获取书籍信息出错: " + res.status);
+                return;
+            }
+            console.log(res.data);
+            self.fileInfo = res.data;
+            showBookInfoModal(self);
+        }).catch(function(err){
+            self.$Message.error("获取书籍信息失败: " + err);
+        });
+    }
+
+    function showBookInfoModal(self){
+        let info = "字数：" + self.fileInfo.Words;
+        info += "<br><br>章节：" + self.fileInfo.Chapters;
+        info += "<br><br>修改时间：" + self.fileInfo.ModTime;
+
+        self.$Modal.info({
+            title: self.fileInfo.Name,
+            content: info,
+            closable: true,
+        });
     }
     
     function showHelp () {
@@ -644,10 +676,8 @@ var themeList = [
 
     function download(self){
         let f = self.$route.params.file;
-        let url = rootPath + "/" + f + "/clearFile/" + f;
-        console.log("url: " + url);
         let a = document.createElement('a');
-        a.href = url;
+        a.href = rootPath + "/" + f + "/clearFile/" + f;;
         a.download = f;
 
         //append to body to trigger download in firefox
