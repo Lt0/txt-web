@@ -309,12 +309,12 @@
         </div>
     </div>
 
-    <div id="main">
+    <div id="main" @scroll.native="saveReadPosition">
         <div id="main-layout">
             <div id="left" v-on:click="goPrev">
                 <Button id="goPrev" type="text" shape="circle" icon="ios-arrow-back" class="btn"></Button>
             </div>
-            <div id="center" @scroll.native="saveReadPosition">
+            <div id="center">
                 <div :style="{background: theme.fontBg, color: theme.fontColor, fontSize: theme.fontSize+'%', lineHeight: theme.lineHeight+'%', letterSpacing: theme.letterSpacing+'px', paddingLeft: theme.vPadding+'px', paddingRight: theme.vPadding+'px', paddingTop: theme.hPadding+'px', paddingBottom: theme.hPadding+'px', width: (theme.pageWidth*basePageWidth)+'px'}">
                     <h2 id="caption-title">{{ captionTitle }}</h2>
                     <p id="content">{{ content }}</p>
@@ -421,6 +421,8 @@ var themeList = [
                 theme: Object.assign({}, defaultTheme),
                 themeList: themeList,
                 bookInfoModal: false,
+                readPosition: null,
+                needScroll: false,
             }
         },
         beforeCreate () {
@@ -433,6 +435,11 @@ var themeList = [
             this.fetchContent();
             this.fetchCatalogs();
         },
+        mounted () {
+            registScrollHandler(this);
+            // 使用 nextTick 在 DOM 更新后执行
+            this.$nextTick(this.checkReadPosition);
+        },
         watch: {
             // 如果路由有变化，会再次执行该方法
             //'$route': 'fetchData'
@@ -442,7 +449,10 @@ var themeList = [
                 this.fetchCatalogs();
             },
             content () {
-                // content 有变化则说明章节发生了变化
+                // content 有变化则说明章节 content 发生了变化
+                //首次加载也会导致 content 变化，直接监控 content 记录进度的话，在 setReadPosition 之前就会覆盖掉旧的记录
+                this.$nextTick(this.setReadPosition);
+                localSaveReadPosition(this);
             },
             themeList: function () {
                 // 直接在这里监听的话，载入页面时加载用户配置也会更改 themeList 导致指出 setEvHandler
@@ -462,7 +472,9 @@ var themeList = [
                 console.log("jump");
             },
             goCaption (val) {
+                
                 let p = "/" + this.$route.params.file + "/" + val;
+                console.log("goCaption: " + p);
                 this.$router.push({ path: p })
             },
             goPrev () {
@@ -522,9 +534,14 @@ var themeList = [
             hdrMoreHandler (val) {
                 hdrMoreHandler(this, val);
             },
-            saveReadPosition () {
-                console.log("saveReadPosition");
+            checkReadPosition () {
+                console.log("self checkReadPosition");
+                checkReadPosition(this);
             },
+            setReadPosition () {
+                console.log("self setReadPosition");
+                setReadPosition(this);
+            }
         }
     }
 
@@ -740,6 +757,106 @@ var themeList = [
                     break;
                 default:
             }
+        }
+    }
+
+    //在 mounted 之后 checkReadPosition，如果有，则复制到全局变量 OldReadPosition，并弹出询问对话框
+    //如果用户选择跳转到之前的进度，则设置 self.needScroll 为 true，调用 goCaption 跳转到记录的章节
+    //self 的 watcher 监控 content，content 数据变化后，如果发现 self.needScroll 为 true，则跳转到 OldReadPosition 记录的 scrollTop，并设置 self.needScroll = false
+    var OldReadPosition;
+    function ReadPosition(file, caption, scrollTop) {
+        this.key = "readPosition-" + file;  //用于存取的 key
+        this.file = file;                   //阅读记录对应的文件
+        this.caption = caption;             //阅读进度：章节
+        this.scrollTop = scrollTop;         //阅读进度：浏览器滚动条位置
+    }
+
+    function initReadPosition(self){
+        let key = "readPosition-" + self.file;
+        let rp = JSON.parse(localStorage.getItem(key));
+        if (!rp) {
+            let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
+            rp = new ReadPosition(self.file, caption, 0);
+        }
+        return rp;
+    }
+    function registScrollHandler(self) {
+        console.log("registScrollHandler");
+        let m = document.getElementById("main");
+        m.onscroll = function() {
+            localSaveReadPosition(self, m);
+        }
+    }
+    function localSaveReadPosition(self){
+        if (!self.readPosition) {
+            console.log("localSaveReadPosition: self.readPosition is null, ignore saving");
+            return;
+        }
+        //console.log("localSaveReadPosition: " + el.scrollTop);
+        let el = document.getElementById("main");
+        let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
+
+        self.readPosition.scrollTop = el.scrollTop;
+        self.readPosition.caption = caption;
+        //console.log("self.readPosition: " + self.readPosition);
+        //console.log("self.readPosition: " + JSON.stringify(self.readPosition));
+        localStorage.setItem(self.readPosition.key, JSON.stringify(self.readPosition));
+
+        let p = JSON.parse(localStorage.getItem(self.readPosition.key));
+        console.log("saved pos: " + p.caption + ": " + p.scrollTop);
+    }
+
+    function checkReadPosition(self){
+        console.log("checkReadPosition");
+        let key = "readPosition-" + self.file;
+        let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
+        var rp = JSON.parse(localStorage.getItem(key));
+        
+        if (!rp) {
+            console.log("no saved readPosition for this file, create.");
+            rp = new ReadPosition(self.file, caption, 0);
+        }
+
+        //首次加载也会导致 content 变化，需要将记录复制出来，以避免被 save 函数覆盖掉
+        self.readPosition = Object.assign({}, rp);
+
+        let contentStr = "<p>发现本地保存的阅读进度，是否跳转到记录的进度？</p>";
+        contentStr += "<p>章节: " + rp.caption + "</p>";
+        contentStr += "<p>scrollTop: " + rp.scrollTop + "</p>";
+        self.$Modal.confirm({
+            title: '进度跳转',
+            content: contentStr,
+            onOk: () => {
+                self.needScroll = true;
+                OldReadPosition = rp;
+                if (rp.caption != caption) {
+                    //当前的打开的不是记录中的章节，直接跳转到记录的章节，
+                    //跳转之后会更新 self.content，self.content 的 watcher 会调用 self.setReadPosition 以设置滚动条位置
+                    self.goCaption(rp.caption, rp);
+                } else {
+                    // 如果是当前章节，直接滚动到记录的位置即可
+                    setReadPosition(self);
+                }
+            },
+            onCancel: () => {
+                self.$Message.info('放弃旧的阅读进度');
+                return;
+            }
+        });
+    }
+
+    function setReadPosition(self){
+        if (self.needScroll) {
+            console.log("setReadPosition: scroll")
+            let p = parseInt(OldReadPosition.scrollTop);
+            let m = document.getElementById("main");
+            console.log("setReadPosition: " + p);
+            console.log("scrollTopMax: " + m.scrollTopMax);
+            m.scrollTop = p;
+            // 滚动结束之后设置 needScroll 表示不再需要滚动，
+            //并重置 self.readPosition 为 OldReadPosition 以便覆盖 content 更新后，content 的 watcher 在跳转到进度之前用临时的进度覆盖了旧的进度
+            self.needScroll = false;
+            self.readPosition = OldReadPosition;
         }
     }
 </script>
