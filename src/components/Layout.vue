@@ -19,10 +19,13 @@
     #main{
         flex-grow: 1;
 
+        overflow: auto;
+    }
+    #main-layout{
         display: flex;
         justify-content: center;
 
-        overflow: auto;
+        
     }
     .footer{
         color: #777;
@@ -312,19 +315,22 @@
     </div>
 
     <div id="main">
-        <div id="left" v-on:click="goPrev">
-            <Button id="goPrev" type="text" shape="circle" icon="ios-arrow-back" class="btn"></Button>
-        </div>
-        <div id="center" :style="{}">
-            <div :style="{background: theme.fontBg, color: theme.fontColor, fontSize: theme.fontSize+'%', lineHeight: theme.lineHeight+'%', letterSpacing: theme.letterSpacing+'px', paddingLeft: theme.vPadding+'px', paddingRight: theme.vPadding+'px', paddingTop: theme.hPadding+'px', paddingBottom: theme.hPadding+'px', width: (theme.pageWidth*basePageWidth)+'px'}">
-                <h2 id="caption-title">{{ captionTitle }}</h2>
-                <p id="content">{{ content }}</p>
+        <div id="main-layout">
+            <div id="left" v-on:click="goPrev">
+                <Button id="goPrev" type="text" shape="circle" icon="ios-arrow-back" class="btn"></Button>
             </div>
-            <Footer class="layout-footer-center footer" :style="{background: 'transparent'}">2018 &copy; lightimehpq@gmail.com</Footer>
+            <div id="center" @scroll.native="saveReadPosition">
+                <div :style="{background: theme.fontBg, color: theme.fontColor, fontSize: theme.fontSize+'%', lineHeight: theme.lineHeight+'%', letterSpacing: theme.letterSpacing+'px', paddingLeft: theme.vPadding+'px', paddingRight: theme.vPadding+'px', paddingTop: theme.hPadding+'px', paddingBottom: theme.hPadding+'px', width: (theme.pageWidth*basePageWidth)+'px'}">
+                    <h2 id="caption-title">{{ captionTitle }}</h2>
+                    <p id="content">{{ content }}</p>
+                </div>
+                <Footer class="layout-footer-center footer" :style="{background: 'transparent'}">2018 &copy; lightimehpq@gmail.com</Footer>
+            </div>
+            <div id="right" v-on:click="goNext">
+                <Button id="goNext" type="text" shape="circle" icon="ios-arrow-forward" class="btn"></Button>
+            </div>
         </div>
-        <div id="right" v-on:click="goNext">
-            <Button id="goNext" type="text" shape="circle" icon="ios-arrow-forward" class="btn"></Button>
-        </div>
+        
     </div>
 </div>
 </template>
@@ -518,8 +524,11 @@ var themeList = [
                 //console.log("theme: " + JSON.stringify(this.theme));
                 saveUserConf(this);
             },
-            hdrMoreHandler(val) {
+            hdrMoreHandler (val) {
                 hdrMoreHandler(this, val);
+            },
+            saveReadPosition () {
+                console.log("saveReadPosition");
             },
         }
     }
