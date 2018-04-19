@@ -182,6 +182,20 @@
         overflow-x: hidden;
         text-overflow: ellipsis;
     }
+    .bookmark-hdr{
+        display: flex;
+        justify-content: space-between;
+    }
+    .bookmark-close-btn{
+        margin-right: 0px;
+        margin-top: 0px;
+        cursor: pointer;
+    }
+    .bookmark-title{
+        flex-grow: 1;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
 </style>
 <template>
 <div id="layout" :style="{background: theme.bg, fontFamily: theme.font}">
@@ -196,7 +210,10 @@
                     <DropdownMenu slot="list">
                         <DropdownItem class="bookmark-item" style="text-align: center" name="newMark" key="newMarkKey"><Icon type="android-add" />&ensp;添加书签</DropdownItem>
                         <DropdownItem class="bookmark-item" divided v-for="mark in bookmarks" :name="mark.id" :key="mark.index">
-                            <p>章节：{{ mark.captionTitle }}</p>
+                            <div class="bookmark-hdr">
+                                <div class="bookmark-title">章节：{{ mark.captionTitle }}</div>
+                                <div @click.stop="delBookMark(mark.id)"><Icon type="close-circled" size="15" class="bookmark-close-btn"/></div>
+                            </div>
                             <Tooltip content="滚动条位置"><p>位置：{{ (mark.percent * 100).toFixed(2) }}%</p></Tooltip>
                             <p>创建时间：{{ mark.saveTimeStr }}</p>
                         </DropdownItem>
@@ -585,7 +602,10 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
                     goBookmark(this, markId);
                 }
             },
-            
+            delBookMark (markId) {
+                console.log("delBookMark");
+                delBookMark(this, markId);
+            }
         }
     }
 
@@ -919,5 +939,25 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
         }).catch(function(error){
             console.log("获取书签: " + error)
         });
+    }
+
+    function delBookMark(self, markId) {
+        let index = getBookmarkIndexById(self.bookmarks, markId);
+        if (index == undefined) {
+            self.$Message.error("找不到要删除的书签");
+            return;
+        }
+        if (!self.bookmarks.splice(index, 1)) {
+            self.$Message.error("删除失败");
+            return;
+        }
+    }
+
+    function getBookmarkIndexById(bookmarks, markId){
+        for (let i = 0; i < bookmarks.length; i++){
+            if (bookmarks[i].id == markId) {
+                return i;
+            }
+        }
     }
 </script>
