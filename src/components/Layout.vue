@@ -175,6 +175,13 @@
         margin-top: 6px;
         cursor: pointer;
     }
+
+    .bookmark-item{
+        width: 250px;
+        text-align: left;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+    }
 </style>
 <template>
 <div id="layout" :style="{background: theme.bg, fontFamily: theme.font}">
@@ -184,12 +191,14 @@
             <div id="hdr-center"></div>
             <div id="hdr-right">
                 <!-- 标题栏书签按钮 -->
-                <Dropdown placement="bottom-end" trigger="click" transfer @on-click="goReadPosition">
+                <Dropdown placement="bottom-end" trigger="click" transfer @on-click="clickBookmark">
                     <Button type="text" shape="circle" icon="bookmark" class="btn hdr-btn hdr-btn-gutter-l"></Button>
                     <DropdownMenu slot="list">
-                        <DropdownItem v-for="mark in bookmarks" :name="mark.key" :key="mark.index">
-                            <p>章节：</p>
-                            <Tooltip content="滚动条位置"><p>位置：</p></Tooltip>
+                        <DropdownItem class="bookmark-item" style="text-align: center" name="newMark" key="newMarkKey"><Icon type="android-add" />&ensp;添加书签</DropdownItem>
+                        <DropdownItem class="bookmark-item" divided v-for="mark in bookmarks" :name="mark.key" :key="mark.index">
+                            <p>章节：{{ mark.captionTitle }}</p>
+                            <Tooltip content="滚动条位置"><p>位置：{{ (mark.percent * 100).toFixed(2) }}%</p></Tooltip>
+                            <p>创建时间：{{ mark.saveTimeStr }}</p>
                         </DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
@@ -421,6 +430,7 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
     this.scrollTop = scrollTop;         //阅读进度：浏览器滚动条位置
     this.scrollMax = scrollMax;         //元素滚动总高度
     this.saveTime = saveTime;           //保存时间
+    //this.saveTimeStr = saveTime.toLocaleTimeString()           //保存时间
     this.percent = scrollTop/scrollMax; //阅读章节的百分比
 }
     
@@ -442,7 +452,7 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
                 themeList: themeList,
                 bookInfoModal: false,
                 readPosition: null,
-                bookmarks: null,
+                bookmarks: [],
             }
         },
         beforeCreate () {
@@ -471,7 +481,7 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
             },
             content () {
                 console.log("content changed");
-                self.captionTitle = getCaptionTitleCur(this);
+                this.captionTitle = getCaptionTitleCur(this);
 
                 this.$nextTick(this.setReadPositionScroll);
                 this.$nextTick(this.saveReadPosition);
@@ -564,9 +574,14 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
             setReadPositionScroll () {
                 setReadPositionScroll(this);
             },
-            goReadPosition () {
-
+            clickBookmark (markKey) {
+                if (markKey == "newMark") {
+                    newBookmark(this);
+                } else {
+                    goBookmark(this, markKey);
+                }
             },
+            
         }
     }
 
@@ -800,20 +815,25 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
         }
     }
     function saveReadPosition(self){
+        updateReadPosition(self, self.readPosition);
+        localStorage.setItem(self.readPosition.key, JSON.stringify(self.readPosition));
+        //console.log("saved readPosition: " + JSON.stringify(self.readPosition));
+    }
+
+    // 更新 readPosition 为当前阅读进度
+    function updateReadPosition(self, readPosition){
+        let rp = readPosition;
         let el = document.getElementById("main");
         let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
-
-        let rp = self.readPosition;
-        
         rp.caption = caption;
         rp.captionTitle = self.captionTitle;
         rp.scrollTop = el.scrollTop;
         rp.scrollMax = el.scrollTopMax? el.scrollTopMax: el.scrollHeight-el.clientHeight;
-        rp.saveTime = Date();
+        rp.saveTime = new Date();
+        rp.saveTimeStr = rp.saveTime.toLocaleDateString() + rp.saveTime.toLocaleTimeString();
         rp.percent = (rp.scrollTop/rp.scrollMax).toFixed(2);
 
-        localStorage.setItem(rp.key, JSON.stringify(rp));
-        //console.log("saved readPosition: " + JSON.stringify(self.readPosition));
+        return rp;
     }
 
     function getReadPosition(self){
@@ -844,5 +864,30 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
             title: '已自动跳转',
             desc: '如果要返回跳转前的位置，请点击浏览器的后退按钮'
         });
+    }
+
+    function newBookmark (self) {
+        let rp = new ReadPosition(self.file);
+        updateReadPosition(self, rp);
+        self.bookmarks.push(rp);
+    }
+
+    function goBookmark (self, markKey) {
+        console.log("goReadPosition");
+        for (let i = 0; i < self.bookmarks.length; i++){
+            if (self.bookmarks[i].key == markKey) {
+                self.readPosition = Object.assign({}, self.bookmarks[i]);
+                break;
+            }
+        }
+        let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
+        if (caption != self.readPosition.caption) {
+            console.log("goBookmark: NOT in bookmark's caption, goCaption");
+            self.goCaption(self.readPosition.caption);
+        } else {
+            console.log("goBookmark: in bookmark's caption, set position directly");
+            setReadPositionScroll(self);
+        }
+        
     }
 </script>
