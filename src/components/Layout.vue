@@ -422,37 +422,36 @@ var themeList = [
                 themeList: themeList,
                 bookInfoModal: false,
                 readPosition: null,
-                needScroll: false,
             }
         },
         beforeCreate () {
             getUserConf(this);
-            keyupHandler(this);
         },
         created () {
             // 组件创建完后获取数据，
             // 此时 data 已经被 observed 了
-            this.fetchContent();
-            this.fetchCatalogs();
+            getReadPosition(this);
         },
         mounted () {
+            // 先调用不带参数的 goCaption() 再调用记录章节的 repalceCaption() 以确保触发路由更新，避免无法刷新的问题
+            this.goCaption();
+            this.replaceCaption(this.readPosition.caption);
+            
+            showAutoJumpTips(this);
+            registkeyupHandler(this);
             registScrollHandler(this);
-            // 使用 nextTick 在 DOM 更新后执行
-            this.$nextTick(this.checkReadPosition);
         },
         watch: {
             // 如果路由有变化，会再次执行该方法
-            //'$route': 'fetchData'
             '$route' (to, from) {
                 this.loading = true;
                 this.fetchContent();
                 this.fetchCatalogs();
             },
             content () {
-                // content 有变化则说明章节 content 发生了变化
-                //首次加载也会导致 content 变化，直接监控 content 记录进度的话，在 setReadPosition 之前就会覆盖掉旧的记录
-                this.$nextTick(this.setReadPosition);
-                localSaveReadPosition(this);
+                console.log("content changed")
+                this.$nextTick(this.setReadPositionScroll);
+                this.$nextTick(this.saveReadPosition);
             },
             themeList: function () {
                 // 直接在这里监听的话，载入页面时加载用户配置也会更改 themeList 导致指出 setEvHandler
@@ -472,10 +471,13 @@ var themeList = [
                 console.log("jump");
             },
             goCaption (val) {
-                
                 let p = "/" + this.$route.params.file + "/" + val;
                 console.log("goCaption: " + p);
-                this.$router.push({ path: p })
+                this.$router.push({ path: p });
+            },
+            replaceCaption (val) {
+                let p = "/" + this.$route.params.file + "/" + val;
+                this.$router.replace({ path: p });
             },
             goPrev () {
                 let self = this;
@@ -528,20 +530,17 @@ var themeList = [
             },
             setEvHandler () {
                 console.log("setEvHandler");
-                //console.log("theme: " + JSON.stringify(this.theme));
                 saveUserConf(this);
             },
             hdrMoreHandler (val) {
                 hdrMoreHandler(this, val);
             },
-            checkReadPosition () {
-                console.log("self checkReadPosition");
-                checkReadPosition(this);
+            saveReadPosition () {
+                saveReadPosition(this);
             },
-            setReadPosition () {
-                console.log("self setReadPosition");
-                setReadPosition(this);
-            }
+            setReadPositionScroll () {
+                setReadPositionScroll(this);
+            },
         }
     }
 
@@ -637,7 +636,7 @@ var themeList = [
 
     function getUserConf(self){
         console.log("get user conf: " + confUrl);
-        printUserConf(self);
+        //printUserConf(self);
         axios.get(confUrl).then(function(response){
             if (response.status != 200) {
                 self.$Message.warning({duration: 15, closable: true, content: "then: 同步服务端配置到本地出错：" + response.status});
@@ -744,10 +743,10 @@ var themeList = [
         document.body.removeChild(a);
     }
 
-    function keyupHandler(self){
-        console.log("keyHandler");
+    function registkeyupHandler(self){
+        console.log("registkeyupHandler");
         document.onkeyup = function(ev){
-            console.log("keyHandler");
+            console.log("registkeyupHandler");
             switch (ev.keyCode) {
                 case 37: //left
                     self.goPrev();
@@ -760,10 +759,6 @@ var themeList = [
         }
     }
 
-    //在 mounted 之后 checkReadPosition，如果有，则复制到全局变量 OldReadPosition，并弹出询问对话框
-    //如果用户选择跳转到之前的进度，则设置 self.needScroll 为 true，调用 goCaption 跳转到记录的章节
-    //self 的 watcher 监控 content，content 数据变化后，如果发现 self.needScroll 为 true，则跳转到 OldReadPosition 记录的 scrollTop，并设置 self.needScroll = false
-    var OldReadPosition;
     function ReadPosition(file, caption, scrollTop) {
         this.key = "readPosition-" + file;  //用于存取的 key
         this.file = file;                   //阅读记录对应的文件
@@ -771,92 +766,47 @@ var themeList = [
         this.scrollTop = scrollTop;         //阅读进度：浏览器滚动条位置
     }
 
-    function initReadPosition(self){
-        let key = "readPosition-" + self.file;
-        let rp = JSON.parse(localStorage.getItem(key));
-        if (!rp) {
-            let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
-            rp = new ReadPosition(self.file, caption, 0);
-        }
-        return rp;
-    }
     function registScrollHandler(self) {
         console.log("registScrollHandler");
         let m = document.getElementById("main");
         m.onscroll = function() {
-            localSaveReadPosition(self, m);
+            saveReadPosition(self);
         }
     }
-    function localSaveReadPosition(self){
-        if (!self.readPosition) {
-            console.log("localSaveReadPosition: self.readPosition is null, ignore saving");
-            return;
-        }
-        //console.log("localSaveReadPosition: " + el.scrollTop);
+    function saveReadPosition(self){
         let el = document.getElementById("main");
         let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
 
         self.readPosition.scrollTop = el.scrollTop;
         self.readPosition.caption = caption;
-        //console.log("self.readPosition: " + self.readPosition);
-        //console.log("self.readPosition: " + JSON.stringify(self.readPosition));
         localStorage.setItem(self.readPosition.key, JSON.stringify(self.readPosition));
-
-        let p = JSON.parse(localStorage.getItem(self.readPosition.key));
-        console.log("saved pos: " + p.caption + ": " + p.scrollTop);
     }
 
-    function checkReadPosition(self){
-        console.log("checkReadPosition");
+    function getReadPosition(self){
+        console.log("getReadPosition for " + self.file);
         let key = "readPosition-" + self.file;
-        let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
-        var rp = JSON.parse(localStorage.getItem(key));
+        self.readPosition = JSON.parse(localStorage.getItem(key));
         
-        if (!rp) {
+        if (!self.readPosition) {
             console.log("no saved readPosition for this file, create.");
-            rp = new ReadPosition(self.file, caption, 0);
+            let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
+            self.readPosition = new ReadPosition(self.file, caption, 0);
         }
-
-        //首次加载也会导致 content 变化，需要将记录复制出来，以避免被 save 函数覆盖掉
-        self.readPosition = Object.assign({}, rp);
-
-        let contentStr = "<p>发现本地保存的阅读进度，是否跳转到记录的进度？</p>";
-        contentStr += "<p>章节: " + rp.caption + "</p>";
-        contentStr += "<p>scrollTop: " + rp.scrollTop + "</p>";
-        self.$Modal.confirm({
-            title: '进度跳转',
-            content: contentStr,
-            onOk: () => {
-                self.needScroll = true;
-                OldReadPosition = rp;
-                if (rp.caption != caption) {
-                    //当前的打开的不是记录中的章节，直接跳转到记录的章节，
-                    //跳转之后会更新 self.content，self.content 的 watcher 会调用 self.setReadPosition 以设置滚动条位置
-                    self.goCaption(rp.caption, rp);
-                } else {
-                    // 如果是当前章节，直接滚动到记录的位置即可
-                    setReadPosition(self);
-                }
-            },
-            onCancel: () => {
-                self.$Message.info('放弃旧的阅读进度');
-                return;
-            }
-        });
     }
 
-    function setReadPosition(self){
-        if (self.needScroll) {
-            console.log("setReadPosition: scroll")
-            let p = parseInt(OldReadPosition.scrollTop);
-            let m = document.getElementById("main");
-            console.log("setReadPosition: " + p);
-            console.log("scrollTopMax: " + m.scrollTopMax);
-            m.scrollTop = p;
-            // 滚动结束之后设置 needScroll 表示不再需要滚动，
-            //并重置 self.readPosition 为 OldReadPosition 以便覆盖 content 更新后，content 的 watcher 在跳转到进度之前用临时的进度覆盖了旧的进度
-            self.needScroll = false;
-            self.readPosition = OldReadPosition;
-        }
+    function setReadPositionScroll(self){
+        let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
+        let p;
+        self.readPosition.caption == caption? p = self.readPosition.scrollTop: p = 0;
+        let m = document.getElementById("main");
+        console.log("setReadPositionScroll: " + p);
+        m.scrollTop = p;
+    }
+
+    function showAutoJumpTips(self){
+        self.$Notice.info({
+            title: '已自动跳转',
+            desc: '如果要返回跳转前的位置，请点击浏览器的后退按钮'
+        });
     }
 </script>
