@@ -424,7 +424,7 @@ var themeList = [
 
 function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTime) {
     this.key = "readPosition-" + file;  //用于存取的 key, 每个文件只有一个
-    this.id = JSON.stringify(Date()) ;  //唯一识别 ID
+    this.id = Date().toString() ;       //唯一识别 ID
     this.file = file;                   //阅读记录对应的文件
     this.caption = caption;             //阅读进度：章节
     this.captionTitle = captionTitle;   //章节标题
@@ -461,6 +461,7 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
         created () {
             // 组件创建完后获取数据，
             // 此时 data 已经被 observed 了
+            getBookmarks(this);
             getReadPosition(this);
             this.fetchCatalogs();
         },
@@ -895,5 +896,28 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
 
     function updateServerBookmarks(self){
         console.log("updateServerBookmarks");
+        let postBookmarksPath = "/api/reader/txt/user/bookmarks?file=" + encodeURIComponent(self.file);
+        axios.post(postBookmarksPath, self.bookmarks).then(function(res){
+            if (res.data == "" || res.data == null){
+                self.$Message.success("书签同步成功");
+            } else {
+                self.$Message.error({duration: 3, content: "保存书签到服务端失败：" + res.data});
+            }
+        }).catch(function(err){
+             self.$Message.error({duration: 3, content: "保存书签到服务端失败：" + err});
+        });
+    }
+
+    function getBookmarks(self){
+        console.log("getBookmarks");
+        let getBookmarksPath = '/static/cache/txt/bookmarks/' + encodeURIComponent(self.file);
+        axios.get(getBookmarksPath).then(function(res){
+            if (!res.data) return;
+            console.log("res.data: " + res.data);
+            self.bookmarks = res.data;
+            //self.$Message.success("服务端书签已同步到本地");
+        }).catch(function(error){
+            console.log("获取书签: " + error)
+        });
     }
 </script>
