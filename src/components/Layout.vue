@@ -195,7 +195,7 @@
                     <Button type="text" shape="circle" icon="bookmark" class="btn hdr-btn hdr-btn-gutter-l"></Button>
                     <DropdownMenu slot="list">
                         <DropdownItem class="bookmark-item" style="text-align: center" name="newMark" key="newMarkKey"><Icon type="android-add" />&ensp;添加书签</DropdownItem>
-                        <DropdownItem class="bookmark-item" divided v-for="mark in bookmarks" :name="mark.key" :key="mark.index">
+                        <DropdownItem class="bookmark-item" divided v-for="mark in bookmarks" :name="mark.id" :key="mark.index">
                             <p>章节：{{ mark.captionTitle }}</p>
                             <Tooltip content="滚动条位置"><p>位置：{{ (mark.percent * 100).toFixed(2) }}%</p></Tooltip>
                             <p>创建时间：{{ mark.saveTimeStr }}</p>
@@ -423,14 +423,14 @@ var themeList = [
 ];
 
 function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTime) {
-    this.key = "readPosition-" + file;  //用于存取的 key
+    this.key = "readPosition-" + file;  //用于存取的 key, 每个文件只有一个
+    this.id = JSON.stringify(Date()) ;  //唯一识别 ID
     this.file = file;                   //阅读记录对应的文件
     this.caption = caption;             //阅读进度：章节
     this.captionTitle = captionTitle;   //章节标题
     this.scrollTop = scrollTop;         //阅读进度：浏览器滚动条位置
     this.scrollMax = scrollMax;         //元素滚动总高度
     this.saveTime = saveTime;           //保存时间
-    //this.saveTimeStr = saveTime.toLocaleTimeString()           //保存时间
     this.percent = scrollTop/scrollMax; //阅读章节的百分比
 }
     
@@ -489,6 +489,9 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
             themeList: function () {
                 // 直接在这里监听的话，载入页面时加载用户配置也会更改 themeList 导致指出 setEvHandler
                 //this.setEvHandler();
+            },
+            bookmarks () {
+                updateServerBookmarks(this);
             },
         },
         methods: {
@@ -574,11 +577,11 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
             setReadPositionScroll () {
                 setReadPositionScroll(this);
             },
-            clickBookmark (markKey) {
-                if (markKey == "newMark") {
+            clickBookmark (markId) {
+                if (markId == "newMark") {
                     newBookmark(this);
                 } else {
-                    goBookmark(this, markKey);
+                    goBookmark(this, markId);
                 }
             },
             
@@ -872,10 +875,10 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
         self.bookmarks.push(rp);
     }
 
-    function goBookmark (self, markKey) {
+    function goBookmark (self, markId) {
         console.log("goReadPosition");
         for (let i = 0; i < self.bookmarks.length; i++){
-            if (self.bookmarks[i].key == markKey) {
+            if (self.bookmarks[i].id == markId) {
                 self.readPosition = Object.assign({}, self.bookmarks[i]);
                 break;
             }
@@ -888,6 +891,9 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
             console.log("goBookmark: in bookmark's caption, set position directly");
             setReadPositionScroll(self);
         }
-        
+    }
+
+    function updateServerBookmarks(self){
+        console.log("updateServerBookmarks");
     }
 </script>
