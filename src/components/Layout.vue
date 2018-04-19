@@ -183,7 +183,16 @@
             <div id="hdr-left">{{ captionTitle }}</div>
             <div id="hdr-center"></div>
             <div id="hdr-right">
-                <Button type="text" shape="circle" icon="bookmark" class="btn hdr-btn"></Button>
+                <!-- 标题栏书签按钮 -->
+                <Dropdown placement="bottom-end" trigger="click" transfer @on-click="goReadPosition">
+                    <Button type="text" shape="circle" icon="bookmark" class="btn hdr-btn hdr-btn-gutter-l"></Button>
+                    <DropdownMenu slot="list">
+                        <DropdownItem v-for="mark in bookmarks" :name="mark.key" :key="mark.index">
+                            <p>章节：</p>
+                            <Tooltip content="滚动条位置"><p>位置：</p></Tooltip>
+                        </DropdownItem>
+                    </DropdownMenu>
+                </Dropdown>
 
                 <!-- 标题栏跳转按钮 
                 <Dropdown placement="bottom-center" trigger="custom" class="caption-list" transfer :visible="jumpVisible">
@@ -403,6 +412,17 @@ var themeList = [
     defaultThemeListItem,
     darkThemeListItem,
 ];
+
+function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTime) {
+    this.key = "readPosition-" + file;  //用于存取的 key
+    this.file = file;                   //阅读记录对应的文件
+    this.caption = caption;             //阅读进度：章节
+    this.captionTitle = captionTitle;   //章节标题
+    this.scrollTop = scrollTop;         //阅读进度：浏览器滚动条位置
+    this.scrollMax = scrollMax;         //元素滚动总高度
+    this.saveTime = saveTime;           //保存时间
+    this.percent = scrollTop/scrollMax; //阅读章节的百分比
+}
     
     export default {
         data() {
@@ -422,6 +442,7 @@ var themeList = [
                 themeList: themeList,
                 bookInfoModal: false,
                 readPosition: null,
+                bookmarks: null,
             }
         },
         beforeCreate () {
@@ -431,6 +452,7 @@ var themeList = [
             // 组件创建完后获取数据，
             // 此时 data 已经被 observed 了
             getReadPosition(this);
+            this.fetchCatalogs();
         },
         mounted () {
             // 先调用不带参数的 goCaption() 再调用记录章节的 repalceCaption() 以确保触发路由更新，避免无法刷新的问题
@@ -446,10 +468,11 @@ var themeList = [
             '$route' (to, from) {
                 this.loading = true;
                 this.fetchContent();
-                this.fetchCatalogs();
             },
             content () {
-                console.log("content changed")
+                console.log("content changed");
+                self.captionTitle = getCaptionTitleCur(this);
+
                 this.$nextTick(this.setReadPositionScroll);
                 this.$nextTick(this.saveReadPosition);
             },
@@ -541,6 +564,9 @@ var themeList = [
             setReadPositionScroll () {
                 setReadPositionScroll(this);
             },
+            goReadPosition () {
+
+            },
         }
     }
 
@@ -551,19 +577,26 @@ var themeList = [
 
         axios.get(catalogUrl).then(function(response){
             splitCatalogs(response.data, self);
-
-            let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
-            let i = caption.replace(/.txt$/, "")
-            let captionTitle = self.catalogs[parseInt(i)-1].text
-            captionTitle = captionTitle.replace(/^.*: /, "");
-            self.captionTitle = captionTitle;
-
+            self.captionTitle = getCaptionTitleCur(self);
             let t = document.getElementsByTagName("title")[0];
             t.innerHTML = file;
 
         }).catch(function(error){
             console.log(error);
         });
+    }
+
+    function getCaptionTitleCur(self){
+        let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
+        return getCaptionTitleByCaption(self, caption);
+    }
+
+    function getCaptionTitleByCaption(self, caption){
+        let i = caption.replace(/.txt$/, "");
+        if (!self.catalogs) return;
+        let captionTitle = self.catalogs[parseInt(i)-1].text;
+        captionTitle = captionTitle.replace(/^.*: /, "");
+        return captionTitle;
     }
 
     function splitCatalogs(catalogsStr, self) {
@@ -759,13 +792,6 @@ var themeList = [
         }
     }
 
-    function ReadPosition(file, caption, scrollTop) {
-        this.key = "readPosition-" + file;  //用于存取的 key
-        this.file = file;                   //阅读记录对应的文件
-        this.caption = caption;             //阅读进度：章节
-        this.scrollTop = scrollTop;         //阅读进度：浏览器滚动条位置
-    }
-
     function registScrollHandler(self) {
         console.log("registScrollHandler");
         let m = document.getElementById("main");
@@ -777,9 +803,17 @@ var themeList = [
         let el = document.getElementById("main");
         let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
 
-        self.readPosition.scrollTop = el.scrollTop;
-        self.readPosition.caption = caption;
-        localStorage.setItem(self.readPosition.key, JSON.stringify(self.readPosition));
+        let rp = self.readPosition;
+        
+        rp.caption = caption;
+        rp.captionTitle = self.captionTitle;
+        rp.scrollTop = el.scrollTop;
+        rp.scrollMax = el.scrollTopMax? el.scrollTopMax: el.scrollHeight-el.clientHeight;
+        rp.saveTime = Date();
+        rp.percent = (rp.scrollTop/rp.scrollMax).toFixed(2);
+
+        localStorage.setItem(rp.key, JSON.stringify(rp));
+        //console.log("saved readPosition: " + JSON.stringify(self.readPosition));
     }
 
     function getReadPosition(self){
@@ -790,7 +824,9 @@ var themeList = [
         if (!self.readPosition) {
             console.log("no saved readPosition for this file, create.");
             let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
-            self.readPosition = new ReadPosition(self.file, caption, 0);
+
+            self.readPosition = new ReadPosition(self.file, caption, self.captionTitle, 0, 0, Date());
+            console.log("created readPosition: " + JSON.stringify(self.readPosition));
         }
     }
 
