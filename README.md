@@ -1,6 +1,17 @@
 # txt-web
 
-> A TXT reader for web
+基于 Vue + iView 实现的 TXT 阅读器 web 前端，目前由 https://github.com/Lt0/bookshelf 提供后端支持。
+
+# 特性
+- 按章节阅读 txt 文件（由服务端自动分割章节，尤其针对网络小说进行优化）
+- 实时保存阅读进度
+- 支持书签
+- 书签自动保存到服务端
+- 支持章节跳转
+- 丰富的界面自定义
+- 支持自定义主题
+- 主题自动保存到服务端
+
 
 ## Build Setup
 
