@@ -169,27 +169,6 @@
         margin-top: 6px;
         cursor: pointer;
     }
-
-    .bookmark-item{
-        width: 250px;
-        text-align: left;
-        overflow-x: hidden;
-        text-overflow: ellipsis;
-    }
-    .bookmark-hdr{
-        display: flex;
-        justify-content: space-between;
-    }
-    .bookmark-close-btn{
-        margin-right: 0px;
-        margin-top: 0px;
-        cursor: pointer;
-    }
-    .bookmark-title{
-        flex-grow: 1;
-        text-overflow: ellipsis;
-        overflow: hidden;
-    }
 </style>
 <template>
 <div id="layout" :style="{background: theme.bg, fontFamily: theme.font}">
@@ -199,21 +178,8 @@
             <div id="hdr-center"></div>
             <div id="hdr-right">
                 <!-- 标题栏书签按钮 -->
-                <Dropdown placement="bottom-end" trigger="click" transfer @on-click="clickBookmark">
-                    <Button type="text" shape="circle" icon="bookmark" class="btn hdr-btn hdr-btn-gutter-l"></Button>
-                    <DropdownMenu slot="list">
-                        <DropdownItem class="bookmark-item" style="text-align: center" name="newMark" key="newMarkKey"><Icon type="android-add" />&ensp;添加书签</DropdownItem>
-                        <DropdownItem class="bookmark-item" divided v-for="mark in bookmarks" :name="mark.id" :key="mark.index">
-                            <div class="bookmark-hdr">
-                                <div class="bookmark-title">章节：{{ mark.captionTitle }}</div>
-                                <div @click.stop="delBookMark(mark.id)"><Icon type="close-circled" size="15" class="bookmark-close-btn"/></div>
-                            </div>
-                            <Tooltip content="滚动条位置"><p>位置：{{ (mark.percent * 100).toFixed(2) }}%</p></Tooltip>
-                            <p>创建时间：{{ mark.saveTimeStr }}</p>
-                        </DropdownItem>
-                    </DropdownMenu>
-                </Dropdown>
-
+                <HdrBookmarks :relDir="relDir" :file="file" :caption="caption" :captionTitle="captionTitle" @goBookmarkEv="goBookmarkEvHandler" />
+            
                 <!-- 标题栏跳转按钮 
                 <Dropdown placement="bottom-center" trigger="custom" class="caption-list" transfer :visible="jumpVisible">
                     <Tooltip content="跳转">
@@ -347,6 +313,7 @@
 <script>
 import axios from 'axios'
 import cm from './common/js'
+import HdrBookmarks from '@/components/hdr/HdrBookmarks'
 import HdrMore from '@/components/hdr/HdrMore'
 import HdrCatalogs from '@/components/hdr/HdrCatalogs'
 
@@ -421,23 +388,12 @@ var themeList = [
     defaultThemeListItem,
     darkThemeListItem,
 ];
-
-function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTime) {
-    this.key = "readPosition-" + file;  //用于存取的 key, 每个文件只有一个
-    this.id = Date().toString() ;       //唯一识别 ID
-    this.file = file;                   //阅读记录对应的文件
-    this.caption = caption;             //阅读进度：章节
-    this.captionTitle = captionTitle;   //章节标题
-    this.scrollTop = scrollTop;         //阅读进度：浏览器滚动条位置
-    this.scrollMax = scrollMax;         //元素滚动总高度
-    this.saveTime = saveTime;           //保存时间
-    this.percent = scrollTop/scrollMax; //阅读章节的百分比
-}
     
     export default {
         components: {
             HdrMore,
             HdrCatalogs,
+            HdrBookmarks,
             },
         data() {
             return {
@@ -457,7 +413,6 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
                 themeList: themeList,
                 bookInfoModal: false,
                 readPosition: null,
-                bookmarks: [],
             }
         },
         computed: {
@@ -496,7 +451,6 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
             console.log("created: relDir: " + this.relDir);
             console.log("created: file: " + this.file);
             console.log("created: caption: " + this.caption);
-            getBookmarks(this);
             getReadPosition(this);
             //this.fetchCatalogs();
         },
@@ -529,9 +483,6 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
                 // 直接在这里监听的话，载入页面时加载用户配置也会更改 themeList 导致指出 setEvHandler
                 //this.setEvHandler();
             },
-            bookmarks () {
-                updateServerBookmarks(this);
-            },
         },
         methods: {
             recvCatalogs (cata) {
@@ -545,9 +496,7 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
                 console.log("jump");
             },
             goCaption (val) {
-                let p = "/read/" + this.relDir + "/" + this.file + "/" + val;
-                console.log("goCaption: " + p);
-                this.$router.push({ path: val });
+                cm.goCaption(this, this.relDir, this.file, val);
             },
             replaceCaption (val) {
                 console.log("replaceCaption");
@@ -603,19 +552,22 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
                 saveReadPosition(this);
             },
             setReadPositionScroll () {
-                setReadPositionScroll(this);
+                cm.setReadPositionScroll(this);
             },
-            clickBookmark (markId) {
-                if (markId == "newMark") {
-                    newBookmark(this);
+            goBookmarkEvHandler (readPosition) {
+                console.log("goBookmarkEvHandler");
+                let self = this;
+
+                self.readPosition = readPosition;
+                let caption = self.caption;
+                if (caption != readPosition.caption) {
+                    console.log("goBookmark: NOT in bookmark's caption, goCaption");
+                    self.goCaption(readPosition.caption);
                 } else {
-                    goBookmark(this, markId);
+                    console.log("goBookmark: in bookmark's caption, set position directly");
+                    cm.setReadPositionScroll(self);
                 }
             },
-            delBookMark (markId) {
-                console.log("delBookMark");
-                delBookMark(this, markId);
-            }
         }
     }
 
@@ -746,26 +698,12 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
             saveReadPosition(self);
         }
     }
+
+    // 保存当前阅读进度到自动进度记录 self.readPosition
     function saveReadPosition(self){
-        updateReadPosition(self, self.readPosition);
+        cm.updateReadPosition(self, self.readPosition);
         localStorage.setItem(self.readPosition.key, JSON.stringify(self.readPosition));
         //console.log("saved readPosition: " + JSON.stringify(self.readPosition));
-    }
-
-    // 更新本地的 readPosition 为当前阅读进度
-    function updateReadPosition(self, readPosition){
-        let rp = readPosition;
-        let el = document.getElementById("main");
-        let caption = self.caption;
-        rp.caption = caption;
-        rp.captionTitle = self.captionTitle;
-        rp.scrollTop = el.scrollTop;
-        rp.scrollMax = el.scrollTopMax? el.scrollTopMax: el.scrollHeight-el.clientHeight;
-        rp.saveTime = new Date();
-        rp.saveTimeStr = rp.saveTime.toLocaleDateString() + rp.saveTime.toLocaleTimeString();
-        rp.percent = (rp.scrollTop/rp.scrollMax).toFixed(2);
-    
-        return rp;
     }
 
     //从本地读取之前的阅读进度记录
@@ -778,18 +716,9 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
             console.log("no saved readPosition for this file, create.");
             let caption = self.caption;
 
-            self.readPosition = new ReadPosition(self.relDir + self.file, caption, self.captionTitle, 0, 0, Date());
+            self.readPosition = new cm.ReadPosition(self.relDir + self.file, caption, self.captionTitle, 0, 0, Date());
             console.log("created readPosition: " + JSON.stringify(self.readPosition));
         }
-    }
-
-    function setReadPositionScroll(self){
-        let caption = self.caption;
-        let p;
-        self.readPosition.caption == caption? p = self.readPosition.scrollTop: p = 0;
-        let m = document.getElementById("main");
-        console.log("setReadPositionScroll: " + p);
-        m.scrollTop = p;
     }
 
     function showAutoJumpTips(self){
@@ -797,75 +726,5 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
             title: '已自动跳转',
             desc: '如果要返回跳转前的位置，请点击浏览器的后退按钮'
         });
-    }
-
-    function newBookmark (self) {
-        let rp = new ReadPosition(self.file);
-        updateReadPosition(self, rp);
-        self.bookmarks.push(rp);
-    }
-
-    function goBookmark (self, markId) {
-        console.log("goReadPosition");
-        for (let i = 0; i < self.bookmarks.length; i++){
-            if (self.bookmarks[i].id == markId) {
-                self.readPosition = Object.assign({}, self.bookmarks[i]);
-                break;
-            }
-        }
-        let caption = self.caption;
-        if (caption != self.readPosition.caption) {
-            console.log("goBookmark: NOT in bookmark's caption, goCaption");
-            self.goCaption(self.readPosition.caption);
-        } else {
-            console.log("goBookmark: in bookmark's caption, set position directly");
-            setReadPositionScroll(self);
-        }
-    }
-
-    function updateServerBookmarks(self){
-        console.log("updateServerBookmarks");
-        let postBookmarksPath = "/api/reader/txt/user/bookmarks?file=" + encodeURIComponent(self.relDir + self.file);
-        axios.post(postBookmarksPath, self.bookmarks).then(function(res){
-            if (res.data == "" || res.data == null){
-                //self.$Message.success("书签同步成功");
-            } else {
-                self.$Message.error({duration: 3, content: "保存书签到服务端失败：" + res.data});
-            }
-        }).catch(function(err){
-             self.$Message.error({duration: 3, content: "保存书签到服务端失败：" + err});
-        });
-    }
-
-    function getBookmarks(self){
-        console.log("getBookmarks");
-        let getBookmarksPath = '/static/cache/txt/bookmarks/' + encodeURIComponent(self.relDir + self.file);
-        axios.get(getBookmarksPath).then(function(res){
-            if (!res.data) return;
-            self.bookmarks = res.data;
-            //self.$Message.success("服务端书签已同步到本地");
-        }).catch(function(error){
-            console.log("获取书签: " + error)
-        });
-    }
-
-    function delBookMark(self, markId) {
-        let index = getBookmarkIndexById(self.bookmarks, markId);
-        if (index == undefined) {
-            self.$Message.error("找不到要删除的书签");
-            return;
-        }
-        if (!self.bookmarks.splice(index, 1)) {
-            self.$Message.error("删除失败");
-            return;
-        }
-    }
-
-    function getBookmarkIndexById(bookmarks, markId){
-        for (let i = 0; i < bookmarks.length; i++){
-            if (bookmarks[i].id == markId) {
-                return i;
-            }
-        }
     }
 </script>
