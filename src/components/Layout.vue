@@ -330,16 +330,7 @@
                     </DropdownMenu>
                 </Dropdown>
 
-                <Dropdown placement="bottom-end" trigger="click" @on-click="hdrMoreHandler">
-                    <Button type="text" shape="circle" icon="ios-more" class="btn hdr-btn hdr-btn-gutter-l"></Button>
-                    <DropdownMenu slot="list">
-                        <DropdownItem name="bookInfo">书籍信息</DropdownItem>
-                        <DropdownItem name="download">下&ensp;&ensp;&ensp;&ensp;载</DropdownItem>
-                        <DropdownItem name="help">帮&ensp;&ensp;&ensp;&ensp;助</DropdownItem>
-                        <DropdownItem name="about">关&ensp;&ensp;&ensp;&ensp;于</DropdownItem>
-                    </DropdownMenu>
-                </Dropdown>
-                
+                <HdrMore :bookRoot="bookRoot" :relDir="relDir" :file="file"/>
             </div>
         </div>
     </div>
@@ -366,6 +357,7 @@
 </template>
 <script>
 import axios from 'axios'
+import HdrMore from '@/components/hdr/HdrMore'
 
 let bookRoot = '/static/cache/books/';
 let confUrl = '/static/cache/conf/user.conf';
@@ -452,8 +444,12 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
 }
     
     export default {
+        components: {
+            HdrMore,
+            },
         data() {
             return {
+                bookRoot: bookRoot,
                 path: this.$route.params.path,
                 fileInfo: null,
                 catalogs: null,
@@ -504,6 +500,10 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
         created () {
             // 组件创建完后获取数据，
             // 此时 data 已经被 observed 了
+            console.log("created: path: " + this.path);
+            console.log("created: relDir: " + this.relDir);
+            console.log("created: file: " + this.file);
+            console.log("created: caption: " + this.caption);
             getBookmarks(this);
             getReadPosition(this);
             this.fetchCatalogs();
@@ -604,9 +604,6 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
             setEvHandler () {
                 console.log("setEvHandler");
                 saveUserConf(this);
-            },
-            hdrMoreHandler (val) {
-                hdrMoreHandler(this, val);
             },
             saveReadPosition () {
                 saveReadPosition(this);
@@ -773,84 +770,6 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
         let conf = new userConf(self.theme, self.themeList);
         console.log(JSON.stringify(conf));
         console.log("========================================");
-    }
-
-    function hdrMoreHandler(self, val){
-        console.log("hdrMoreHandler: " + val);
-        switch (val) {
-            case "bookInfo":
-                showBookInfo(self);
-                break;
-            case "help":
-                showHelp();
-                break;
-            case "about":
-                showAbout(self);
-                break;
-            case "download":
-                download(self);
-                break;
-            default:
-                console.log("unknow name: " + val);
-        }
-    }
-
-    function showBookInfo (self) {
-        console.log("showBookInfo");
-        if (self.fileInfo) {
-            showBookInfoModal(self);
-            return;
-        }
-
-        let infoPath = bookRoot + self.relDir + self.file + "/info.txt";
-        axios.get(infoPath).then(function(res){
-            if (res.status != 200) {
-                self.$Message.error("获取书籍信息出错: " + res.status);
-                return;
-            }
-            console.log(res.data);
-            self.fileInfo = res.data;
-            showBookInfoModal(self);
-        }).catch(function(err){
-            self.$Message.error("获取书籍信息失败: " + err);
-        });
-    }
-
-    function showBookInfoModal(self){
-        let info = "字数：" + self.fileInfo.Words;
-        info += "<br><br>章节：" + self.fileInfo.Chapters;
-        info += "<br><br>修改时间：" + self.fileInfo.ModTime;
-
-        self.$Modal.info({
-            title: self.fileInfo.Name,
-            content: info,
-            closable: true,
-        });
-    }
-    
-    function showHelp () {
-        console.log("showHelp");
-    }
-
-    function showAbout (self) {
-        console.log("showAbout");
-        self.$Modal.info({
-            title: "Athena TXT Reader",
-            content: "<a href='https://github.com/Lt0/txt-web' target='_blank'>https://github.com/Lt0/txt-web</a>",
-            closable: true,
-        });
-    }
-
-    function download(self){
-        let a = document.createElement('a');
-        a.href = bookRoot + "/" + self.relDir + "/" + self.file + "/clearFile/" + self.file;
-        a.download = self.file;
-
-        //append to body to trigger download in firefox
-        document.body.appendChild(a);
-        
-        a.click();
-        document.body.removeChild(a);
     }
 
     function registkeyupHandler(self){
