@@ -569,15 +569,6 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
                 let self = this;
                 goNext(self)
             },
-            minusFont () {
-                if (this.theme.fontSize <= 10) return;
-                this.theme.fontSize -= 10;
-                this.$Message.info('字体大小: ' + this.theme.fontSize + "%");
-            },
-            plusFont () {
-                this.theme.fontSize += 10;
-                this.$Message.info('字体大小: ' + this.theme.fontSize + "%");
-            },
             addTheme () {
                 const tmpTheme = Object.assign({}, this.theme);
                 const t = new themeListItem(this.themeList.length + 1, tmpTheme);
