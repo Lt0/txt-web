@@ -888,7 +888,7 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
     function saveReadPosition(self){
         updateReadPosition(self, self.readPosition);
         localStorage.setItem(self.readPosition.key, JSON.stringify(self.readPosition));
-        console.log("saved readPosition: " + JSON.stringify(self.readPosition));
+        //console.log("saved readPosition: " + JSON.stringify(self.readPosition));
     }
 
     // 更新 readPosition 为当前阅读进度
