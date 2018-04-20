@@ -1,14 +1,15 @@
 <template>
-<Dropdown id="captions" placement="bottom-end" trigger="click" class="caption-list" transfer @on-click="goCaption" >
-    <Button type="text" shape="circle" icon="navicon-round" class="btn btn-gutter-l"></Button>
+<Dropdown id="captions" placement="bottom-end" trigger="click" class="app-caption-list" transfer @on-click="goCaption" >
+    <AppBtn icon="navicon-round" />
     <DropdownMenu slot="list">
-        <DropdownItem class="caption-list-item" v-for="catalog in catalogs" :name="catalog.name" :key="catalog.index">{{ catalog.text }}</DropdownItem>
+        <DropdownItem class="app-caption-list-item" v-for="catalog in catalogs" :name="catalog.name" :key="catalog.index">{{ catalog.text }}</DropdownItem>
     </DropdownMenu>
 </Dropdown>
 </template>
 
 <script>
 import axios from 'axios'
+// import AppButton from '../common/AppButton'
 import cm from '../common/js'
 
 export default {
@@ -62,35 +63,4 @@ function splitCatalogs(catalogsStr, self) {
 </script>
 
 <style scoped>
-    .btn{
-        color: #fff;
-        mix-blend-mode: exclusion;
-    }
-    .btn:hover{
-        border-color: #fff;
-        mix-blend-mode: difference;
-    }
-    .btn:active{
-        border-color: #fff;
-        mix-blend-mode: difference;
-    }
-    .btn:visited{
-        border-color: #fff;
-        mix-blend-mode: difference;
-    }
-    .btn:focus{
-        border-color: #fff;
-        mix-blend-mode: difference;
-    }
-
-    .btn-gutter-l {
-        margin-left: 16px;
-    }
-
-    .caption-list-item{
-        width: 250px;
-        text-align: left;
-        overflow-x: hidden;
-        text-overflow: ellipsis;
-    }
 </style>

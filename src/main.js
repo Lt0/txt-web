@@ -6,6 +6,13 @@ import router from './router'
 
 import iView from 'iview';
 import 'iview/dist/styles/iview.css';
+import './app.css';
+
+// 引入自定义组件
+import AppBtn from './components/common/AppBtn'
+
+// 注册自定义组件
+Vue.component('AppBtn', AppBtn);
 
 Vue.config.productionTip = false
 Vue.use(iView);

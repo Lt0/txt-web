@@ -1,0 +1,17 @@
+.app-btn{
+    border-width: 0px;
+}
+.app-btn:hover{
+    border-width: 1px;
+}
+
+.app-btn-gutter-l {
+    margin-left: 16px;
+}
+
+.app-caption-list-item{
+    width: 250px;
+    text-align: left;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}

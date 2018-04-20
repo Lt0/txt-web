@@ -1,6 +1,6 @@
 <template>
     <Dropdown placement="bottom-end" trigger="click" @on-click="hdrMoreHandler">
-        <Button type="text" shape="circle" icon="ios-more" class="btn btn-gutter-l"></Button>
+        <AppBtn icon="ios-more" />
         <DropdownMenu slot="list">
             <DropdownItem name="bookInfo">书籍信息</DropdownItem>
             <DropdownItem name="download">下&ensp;&ensp;&ensp;&ensp;载</DropdownItem>
@@ -92,28 +92,4 @@ function download(self){
 </script>
 
 <style scoped>
-    .btn{
-        color: #fff;
-        mix-blend-mode: exclusion;
-    }
-    .btn:hover{
-        border-color: #fff;
-        mix-blend-mode: difference;
-    }
-    .btn:active{
-        border-color: #fff;
-        mix-blend-mode: difference;
-    }
-    .btn:visited{
-        border-color: #fff;
-        mix-blend-mode: difference;
-    }
-    .btn:focus{
-        border-color: #fff;
-        mix-blend-mode: difference;
-    }
-
-    .btn-gutter-l {
-        margin-left: 16px;
-    }
 </style>
