@@ -811,7 +811,7 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
             return;
         }
 
-        let infoPath = bookRoot + self.file + "/info.txt";
+        let infoPath = bookRoot + self.relDir + self.file + "/info.txt";
         axios.get(infoPath).then(function(res){
             if (res.status != 200) {
                 self.$Message.error("获取书籍信息出错: " + res.status);
