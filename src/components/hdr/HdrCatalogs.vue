@@ -9,7 +9,7 @@
 
 <script>
 import axios from 'axios'
-import cm from '../common'
+import cm from '../common/js'
 
 export default {
     props: ['bookRoot', 'relDir', 'file', 'caption'],

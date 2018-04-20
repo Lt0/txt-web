@@ -346,7 +346,7 @@
 </template>
 <script>
 import axios from 'axios'
-import cm from './common'
+import cm from './common/js'
 import HdrMore from '@/components/hdr/HdrMore'
 import HdrCatalogs from '@/components/hdr/HdrCatalogs'
 
