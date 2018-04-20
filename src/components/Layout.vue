@@ -882,7 +882,7 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
         //console.log("saved readPosition: " + JSON.stringify(self.readPosition));
     }
 
-    // 更新 readPosition 为当前阅读进度
+    // 更新本地的 readPosition 为当前阅读进度
     function updateReadPosition(self, readPosition){
         let rp = readPosition;
         let el = document.getElementById("main");
@@ -898,6 +898,7 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
         return rp;
     }
 
+    //从本地读取之前的阅读进度记录
     function getReadPosition(self){
         console.log("getReadPosition for " + self.relDir + self.file);
         let key = "readPosition-" + self.relDir + self.file;
@@ -971,7 +972,6 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
         let getBookmarksPath = '/static/cache/txt/bookmarks/' + encodeURIComponent(self.relDir + self.file);
         axios.get(getBookmarksPath).then(function(res){
             if (!res.data) return;
-            console.log("res.data: " + res.data);
             self.bookmarks = res.data;
             //self.$Message.success("服务端书签已同步到本地");
         }).catch(function(error){
