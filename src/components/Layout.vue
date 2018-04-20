@@ -44,12 +44,6 @@
         mix-blend-mode: difference;
     }
 
-    .caption-list-item{
-        width: 250px;
-        text-align: left;
-        overflow-x: hidden;
-        text-overflow: ellipsis;
-    }
     #content{
         /*line-height: 200%;*/
         text-align: justify;
@@ -231,12 +225,7 @@
                 </Dropdown>
     -->
                 <!-- 标题栏章节按钮 -->
-                <Dropdown id="captions" placement="bottom-end" trigger="click" class="caption-list" transfer @on-click="goCaption">
-                    <Button type="text" shape="circle" icon="navicon-round" class="btn hdr-btn hdr-btn-gutter-l"></Button>
-                    <DropdownMenu slot="list">
-                        <DropdownItem class="caption-list-item" v-for="catalog in catalogs" :name="catalog.name" :key="catalog.index">{{ catalog.text }}</DropdownItem>
-                    </DropdownMenu>
-                </Dropdown>
+                <HdrCatalogs :bookRoot="bookRoot" :relDir="relDir" :file="file" :caption="caption" @goCaptionByCatalog="goCaption" @sendCatalogs="recvCatalogs" />
 
                 <!-- 标题栏设置按钮 -->
                 <Dropdown id="setting" placement="bottom-end" trigger="custom" transfer :visible="setVisible">
@@ -357,7 +346,9 @@
 </template>
 <script>
 import axios from 'axios'
+import cm from './common'
 import HdrMore from '@/components/hdr/HdrMore'
+import HdrCatalogs from '@/components/hdr/HdrCatalogs'
 
 let bookRoot = '/static/cache/books/';
 let confUrl = '/static/cache/conf/user.conf';
@@ -446,6 +437,7 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
     export default {
         components: {
             HdrMore,
+            HdrCatalogs,
             },
         data() {
             return {
@@ -506,7 +498,7 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
             console.log("created: caption: " + this.caption);
             getBookmarks(this);
             getReadPosition(this);
-            this.fetchCatalogs();
+            //this.fetchCatalogs();
         },
         mounted () {
             //如果自动记录的 caption 和用户输入的 caption 相同，直接 goCaption 到自动记录的 caption 不会触发路由变化，也就不会触发获取 content 函数，所以需要手动获取一次自动记录的章节内容
@@ -523,9 +515,12 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
                 this.loading = true;
                 this.fetchContent();
             },
+            catalogs () {
+                this.captionTitle = cm.getCaptionTitleCur(this);
+            },
             content () {
                 console.log("content changed");
-                this.captionTitle = getCaptionTitleCur(this);
+                this.captionTitle = cm.getCaptionTitleCur(this);
 
                 this.$nextTick(this.setReadPositionScroll);
                 this.$nextTick(this.saveReadPosition);
@@ -539,9 +534,8 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
             },
         },
         methods: {
-            fetchCatalogs () {
-                let self = this;
-                fetchCatalogs(this);
+            recvCatalogs (cata) {
+                this.catalogs = cata;
             },
             fetchContent () {
                 var self = this;
@@ -622,49 +616,6 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
                 console.log("delBookMark");
                 delBookMark(this, markId);
             }
-        }
-    }
-
-    function fetchCatalogs (self) {
-        let catalogUrl = bookRoot + self.relDir + self.file + "/" + "catalog.txt";
-        console.log("catalogUrl: " + catalogUrl);
-
-        axios.get(catalogUrl).then(function(response){
-            splitCatalogs(response.data, self);
-            self.captionTitle = getCaptionTitleCur(self);
-            let t = document.getElementsByTagName("title")[0];
-            t.innerHTML = self.file;
-
-        }).catch(function(error){
-            console.log(error);
-        });
-    }
-
-    function getCaptionTitleCur(self){
-        let caption = self.caption;
-        return getCaptionTitleByCaption(self, caption);
-    }
-
-    function getCaptionTitleByCaption(self, caption){
-        let i = caption.replace(/.txt$/, "");
-        if (!self.catalogs) return;
-        let captionTitle = self.catalogs[parseInt(i)-1].text;
-        captionTitle = captionTitle.replace(/^.*: /, "");
-        return captionTitle;
-    }
-
-    function splitCatalogs(catalogsStr, self) {
-        let cls = catalogsStr.split("\n");
-        
-        self.catalogs = [];
-        for (var i = 0; i < cls.length; i++) {
-            if (cls[i] == "") {
-                continue;
-            }
-            let item = {name: "", text: ""};
-            item.name = (i+1) + ".txt";
-            item.text = (i+1) +": " + cls[i];
-            self.catalogs.push(item);
         }
     }
 
