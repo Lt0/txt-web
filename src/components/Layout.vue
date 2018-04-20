@@ -367,7 +367,7 @@
 <script>
 import axios from 'axios'
 
-let rootPath = '/static/cache/books/';
+let bookRoot = '/static/cache/books/';
 let confUrl = '/static/cache/conf/user.conf';
 
 const colors = ['#1c2438', '#495060', '#80848f', '#bbbec4', '#dddee1', '#e9eaec', '#f8f8f9', '#EFF3F6', '#f5f7f9', '#fff'];
@@ -454,11 +454,11 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
     export default {
         data() {
             return {
-                file: this.$route.params.file,
+                path: this.$route.params.path,
                 fileInfo: null,
                 catalogs: null,
-                content: null,
                 captionTitle: null,
+                content: null,
                 loading: true,
                 setVisible: false,
                 colors: colors,
@@ -472,6 +472,32 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
                 bookmarks: [],
             }
         },
+        computed: {
+            relDir: function(){ // file dir relative to bookRoot
+                if (!this.$route.params.path) return "/";
+                let params = this.$route.params.path.split("/");
+                if (params.length < 3) return "/";
+                let dirStrs = params.slice(0, params.length-2);
+                let dir = "/";
+                for (let i = 0; i < dirStrs.length; i++) {
+                    dir += (dirStrs[i] + "/");
+                }
+                return dir;
+            },
+            file: function(){
+                if (!this.$route.params.path) return null;
+                let params = this.$route.params.path.split("/");
+                if (params.length == 0) return null;
+                if (params.length == 1) return this.path;
+                return params[params.length-2];
+            },
+            caption: function(){
+                if (!this.$route.params.path) return null;
+                let params = this.$route.params.path.split("/");
+                if (params.length < 2) return null;
+                return params[params.length-1];
+            },
+        },
         beforeCreate () {
             getUserConf(this);
         },
@@ -483,11 +509,11 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
             this.fetchCatalogs();
         },
         mounted () {
-            // 先调用不带参数的 goCaption() 再调用记录章节的 repalceCaption() 以确保触发路由更新，避免无法刷新的问题
-            this.goCaption();
-            this.replaceCaption(this.readPosition.caption);
+            //如果自动记录的 caption 和用户输入的 caption 相同，直接 goCaption 到自动记录的 caption 不会触发路由变化，也就不会触发获取 content 函数，所以需要手动获取一次自动记录的章节内容
+            this.goCaption(this.readPosition.caption);
+            fetchCaptionContent(this, this.readPosition.caption);
             
-            showAutoJumpTips(this);
+            //showAutoJumpTips(this);
             registkeyupHandler(this);
             registScrollHandler(this);
         },
@@ -525,12 +551,14 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
                 console.log("jump");
             },
             goCaption (val) {
-                let p = "/" + this.$route.params.file + "/" + val;
+                let p = "/read/" + this.relDir + "/" + this.file + "/" + val;
                 console.log("goCaption: " + p);
-                this.$router.push({ path: p });
+                this.$router.push({ path: val });
             },
             replaceCaption (val) {
-                let p = "/" + this.$route.params.file + "/" + val;
+                console.log("replaceCaption");
+                let p = "/read/" + this.relDir + "/" + this.file + "/" + val;
+                console.log("replaceCaption: " + p);
                 this.$router.replace({ path: p });
             },
             goPrev () {
@@ -610,15 +638,14 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
     }
 
     function fetchCatalogs (self) {
-        let file = self.$route.params.file;
-        let catalogUrl = rootPath + file + "/" + "catalog.txt";
+        let catalogUrl = bookRoot + self.relDir + self.file + "/" + "catalog.txt";
         console.log("catalogUrl: " + catalogUrl);
 
         axios.get(catalogUrl).then(function(response){
             splitCatalogs(response.data, self);
             self.captionTitle = getCaptionTitleCur(self);
             let t = document.getElementsByTagName("title")[0];
-            t.innerHTML = file;
+            t.innerHTML = self.file;
 
         }).catch(function(error){
             console.log(error);
@@ -626,7 +653,7 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
     }
 
     function getCaptionTitleCur(self){
-        let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
+        let caption = self.caption;
         return getCaptionTitleByCaption(self, caption);
     }
 
@@ -653,40 +680,61 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
         }
     }
 
+    //获取当前 caption 的 content
     function fetchContent(self) {
-        let file = self.$route.params.file;
-        let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
-        let contentUrl = rootPath + file + "/" + caption;
-        console.log("contentUrl: " + contentUrl);
+        let contentUrl = bookRoot + "/" + self.relDir + "/" + self.file + "/" + self.caption;
+        console.log("fetchContent: " + contentUrl);
 
         axios.get(contentUrl).then(function(response){
             self.loading = false;
             self.content = response.data;
         }).catch(function(error){
             console.log(error);
+            let errStr = "<p>章节文件路径: " + contentUrl + "</p>";
+            errStr += "err: " + error;
+            self.$Modal.error({
+                title: "读取章节出错",
+                content: errStr,
+            });
+        });
+    }
+
+    //获取指定 caption 的 content
+    function fetchCaptionContent(self, caption) {
+        let contentUrl = bookRoot + "/" + self.relDir + "/" + self.file + "/" + caption;
+        console.log("fetchCaptionContent: " + contentUrl);
+
+        axios.get(contentUrl).then(function(response){
+            self.loading = false;
+            self.content = response.data;
+        }).catch(function(error){
+            console.log(error);
+            let errStr = "<p>章节文件路径: " + contentUrl + "</p>";
+            errStr += "err: " + error;
+            self.$Modal.error({
+                title: "读取章节出错",
+                content: errStr,
+            });
         });
     }
 
     function goPrev(self) {
-        let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
+        let caption = self.caption;
         let index = caption.replace(/.txt$/, "")
         let prevIndex = (parseInt(index)-1);
         if (prevIndex < 1) return;
 
         let prevCaption = prevIndex + ".txt";
-        let p = "/" + self.$route.params.file + "/" + prevCaption;
-        self.$router.push({ path: p })
+        self.goCaption(prevCaption);
     }
 
     function goNext(self) {
-        let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
-        let index = caption.replace(/.txt$/, "")
+        let caption = self.caption;
+        let index = caption.replace(/.txt$/, "");
         let nextIndex = (parseInt(index)+1);
         if ((nextIndex-1) >= self.catalogs.length) return;
-
         let nextCaption = nextIndex + ".txt";
-        let p = "/" + self.$route.params.file + "/" + nextCaption;
-        self.$router.push({ path: p })
+        self.goCaption(nextCaption);
     }
 
     function saveUserConf(self){
@@ -723,7 +771,7 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
             let conf = response.data;
             self.theme = conf.theme;
             self.themeList = conf.themeList;
-            self.$Message.info("服务端配置已同步到本地");
+            //self.$Message.info("服务端配置已同步到本地");
         }).catch(function(error){
             self.$Message.error({duration: 15, closable: true, content: "同步服务端配置到本地失败: " + error});
         });
@@ -763,7 +811,7 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
             return;
         }
 
-        let infoPath = rootPath + self.file + "/info.txt";
+        let infoPath = bookRoot + self.file + "/info.txt";
         axios.get(infoPath).then(function(res){
             if (res.status != 200) {
                 self.$Message.error("获取书籍信息出错: " + res.status);
@@ -803,10 +851,9 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
     }
 
     function download(self){
-        let f = self.$route.params.file;
         let a = document.createElement('a');
-        a.href = rootPath + "/" + f + "/clearFile/" + f;;
-        a.download = f;
+        a.href = bookRoot + "/" + self.relDir + "/" + self.file + "/clearFile/" + self.file;
+        a.download = self.file;
 
         //append to body to trigger download in firefox
         document.body.appendChild(a);
@@ -841,14 +888,14 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
     function saveReadPosition(self){
         updateReadPosition(self, self.readPosition);
         localStorage.setItem(self.readPosition.key, JSON.stringify(self.readPosition));
-        //console.log("saved readPosition: " + JSON.stringify(self.readPosition));
+        console.log("saved readPosition: " + JSON.stringify(self.readPosition));
     }
 
     // 更新 readPosition 为当前阅读进度
     function updateReadPosition(self, readPosition){
         let rp = readPosition;
         let el = document.getElementById("main");
-        let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
+        let caption = self.caption;
         rp.caption = caption;
         rp.captionTitle = self.captionTitle;
         rp.scrollTop = el.scrollTop;
@@ -856,26 +903,26 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
         rp.saveTime = new Date();
         rp.saveTimeStr = rp.saveTime.toLocaleDateString() + rp.saveTime.toLocaleTimeString();
         rp.percent = (rp.scrollTop/rp.scrollMax).toFixed(2);
-
+    
         return rp;
     }
 
     function getReadPosition(self){
-        console.log("getReadPosition for " + self.file);
-        let key = "readPosition-" + self.file;
+        console.log("getReadPosition for " + self.relDir + self.file);
+        let key = "readPosition-" + self.relDir + self.file;
         self.readPosition = JSON.parse(localStorage.getItem(key));
         
         if (!self.readPosition) {
             console.log("no saved readPosition for this file, create.");
-            let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
+            let caption = self.caption;
 
-            self.readPosition = new ReadPosition(self.file, caption, self.captionTitle, 0, 0, Date());
+            self.readPosition = new ReadPosition(self.relDir + self.file, caption, self.captionTitle, 0, 0, Date());
             console.log("created readPosition: " + JSON.stringify(self.readPosition));
         }
     }
 
     function setReadPositionScroll(self){
-        let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
+        let caption = self.caption;
         let p;
         self.readPosition.caption == caption? p = self.readPosition.scrollTop: p = 0;
         let m = document.getElementById("main");
@@ -904,7 +951,7 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
                 break;
             }
         }
-        let caption = self.$route.params.caption? self.$route.params.caption: "1.txt";
+        let caption = self.caption;
         if (caption != self.readPosition.caption) {
             console.log("goBookmark: NOT in bookmark's caption, goCaption");
             self.goCaption(self.readPosition.caption);
@@ -916,10 +963,10 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
 
     function updateServerBookmarks(self){
         console.log("updateServerBookmarks");
-        let postBookmarksPath = "/api/reader/txt/user/bookmarks?file=" + encodeURIComponent(self.file);
+        let postBookmarksPath = "/api/reader/txt/user/bookmarks?file=" + encodeURIComponent(self.relDir + self.file);
         axios.post(postBookmarksPath, self.bookmarks).then(function(res){
             if (res.data == "" || res.data == null){
-                self.$Message.success("书签同步成功");
+                //self.$Message.success("书签同步成功");
             } else {
                 self.$Message.error({duration: 3, content: "保存书签到服务端失败：" + res.data});
             }
@@ -930,7 +977,7 @@ function ReadPosition(file, caption, captionTitle, scrollTop, scrollMax, saveTim
 
     function getBookmarks(self){
         console.log("getBookmarks");
-        let getBookmarksPath = '/static/cache/txt/bookmarks/' + encodeURIComponent(self.file);
+        let getBookmarksPath = '/static/cache/txt/bookmarks/' + encodeURIComponent(self.relDir + self.file);
         axios.get(getBookmarksPath).then(function(res){
             if (!res.data) return;
             console.log("res.data: " + res.data);

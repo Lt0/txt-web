@@ -7,7 +7,7 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: '/:file/:caption?',
+      path: '/read/:path*',
       name: 'Layout',
       component: Layout,
     }
