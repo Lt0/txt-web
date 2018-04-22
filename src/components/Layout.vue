@@ -115,7 +115,7 @@
     }
 
     #setArea {
-        width: 600px;
+        width: 620px;
         
         padding: 0px 30px;
     }
