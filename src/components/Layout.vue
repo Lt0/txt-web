@@ -7,7 +7,6 @@
 
         overflow: hidden;
     }
-    #hdr{}
     #hdr-container{
         display: flex;
 
@@ -22,30 +21,7 @@
         color: #777;
         mix-blend-mode: difference;
     }
-
-    .btn{
-        color: #fff;
-        mix-blend-mode: exclusion;
-    }
-    .btn:hover{
-        border-color: #fff;
-        mix-blend-mode: difference;
-    }
-    .btn:active{
-        border-color: #fff;
-        mix-blend-mode: difference;
-    }
-    .btn:visited{
-        border-color: #fff;
-        mix-blend-mode: difference;
-    }
-    .btn:focus{
-        border-color: #fff;
-        mix-blend-mode: difference;
-    }
-
     #content{
-        /*line-height: 200%;*/
         text-align: justify;
     }
 
@@ -66,20 +42,6 @@
         
         display: flex;
         justify-content: flex-end;
-    }
-
-    .hdr-btn {
-        /*margin-bottom: 12px;*/
-    }
-    .hdr-btn-gutter {
-        margin-left: 16px;
-        margin-right: 16px;
-    }
-    .hdr-btn-gutter-r {
-        margin-right: 16px;
-    }
-    .hdr-btn-gutter-l {
-        margin-left: 16px;
     }
 
     #main-layout{
@@ -133,16 +95,6 @@
     .set-item .slider{
         flex-grow: 1;
     }
-    .btn-gutter {
-        margin-left: 16px;
-        margin-right: 16px;
-    }
-    .btn-gutter-l {
-        margin-left: 16px;
-    }
-    .btn-gutter-r {
-        margin-right: 16px;
-    }
     .theme-list{
         display: flex;
         justify-content: flex-start;
@@ -179,17 +131,7 @@
             <div id="hdr-right">
                 <!-- 标题栏书签按钮 -->
                 <HdrBookmarks :relDir="relDir" :file="file" :caption="caption" :captionTitle="captionTitle" @goBookmarkEv="goBookmarkEvHandler" />
-            
-                <!-- 标题栏跳转按钮 
-                <Dropdown placement="bottom-center" trigger="custom" class="caption-list" transfer :visible="jumpVisible">
-                    <Tooltip content="跳转">
-                        <Button type="text" shape="circle" icon="forward" class="btn hdr-btn hdr-btn-gutter-l" @click="jumpVisible? jumpVisible=false: jumpVisible=true"></Button>
-                    </Tooltip>
-                    <DropdownMenu slot="list">
-                        <div class="slider btn-gutter-l" style="width: 300px; height: 100px"><Slider show-input :step="0.01"></Slider></div>
-                    </DropdownMenu>
-                </Dropdown>
-    -->
+
                 <!-- 标题栏章节按钮 -->
                 <HdrCatalogs :bookRoot="bookRoot" :relDir="relDir" :file="file" :caption="caption" @goCaptionByCatalog="goCaption" @sendCatalogs="recvCatalogs" />
 
@@ -202,65 +144,64 @@
                                 <div class="set-title">
                                     颜色设置
                                     <Tooltip content="使用浏览器默认字体">
-                                        <Button type="ghost" size="small" class="btn-gutter-l" @click="theme.fontColor = defaultTheme.fontColor; theme.fontBg = defaultTheme.fontBg; theme.bg = defaultTheme.bg; theme.hdrBg=defaultTheme.hdrBg; setEvHandler();">
+                                        <Button type="ghost" size="small" class="app-btn-gutter-l" @click="theme.fontColor = defaultTheme.fontColor; theme.fontBg = defaultTheme.fontBg; theme.bg = defaultTheme.bg; theme.hdrBg=defaultTheme.hdrBg; setEvHandler();">
                                             默认
                                         </Button>
                                     </Tooltip>
                                 </div>
                                 <div class="set-item">
                                     <div>文字: <ColorPicker v-model="theme.fontColor" :colors="colors" size="small" @on-change="setEvHandler" /></div>
-                                    <div class="btn-gutter-l">纸张: <ColorPicker v-model="theme.fontBg" :colors="colors" size="small" @on-change="setEvHandler" /></div>
-                                    <div class="btn-gutter-l">背景: <ColorPicker v-model="theme.bg" :colors="colors" size="small" @on-change="setEvHandler" /></div>
-                                    <div class="btn-gutter-l">页首: <ColorPicker v-model="theme.hdrBg" :colors="colors" size="small" @on-change="setEvHandler" /></div>
+                                    <div class="app-btn-gutter-l">纸张: <ColorPicker v-model="theme.fontBg" :colors="colors" size="small" @on-change="setEvHandler" /></div>
+                                    <div class="app-btn-gutter-l">背景: <ColorPicker v-model="theme.bg" :colors="colors" size="small" @on-change="setEvHandler" /></div>
+                                    <div class="app-btn-gutter-l">页首: <ColorPicker v-model="theme.hdrBg" :colors="colors" size="small" @on-change="setEvHandler" /></div>
                                     
                                 </div>
                             </div>
 
                             <div id="set-font" class="set-group">
                                 <div class="set-title">字体设置</div>字体
-                                    <Select v-model="theme.font" placeholder=theme.font size="small" filterable style="width:150px" class="btn-gutter-l" @on-change="setEvHandler">
+                                    <Select v-model="theme.font" placeholder=theme.font size="small" filterable style="width:150px" class="app-btn-gutter-l" @on-change="setEvHandler">
                                         <Option v-for="item in fontList" :value="item.name" :key="item.index">{{ item.name }}</Option>
                                     </Select>
                                     <!-- 如果已设置过字体，点击默认是会触发 select 的 on-change 事件，这里不需要再绑定 on-change 事件 -->
-                                    <Tooltip content="使用浏览器默认字体"><Button type="ghost" size="small" class="btn-gutter" @click="theme.font=defaultTheme.font;">默认</Button> </Tooltip>
-                                    <!--<span class="btn-gutter-l">繁体<i-switch class="btn-gutter-l" size="small"></i-switch></span>-->
+                                    <Tooltip content="使用浏览器默认字体"><Button type="ghost" size="small" class="app-btn-gutter" @click="theme.font=defaultTheme.font;">默认</Button> </Tooltip>
 
                                 <div class="set-item">
                                     <div>字体大小</div>
-                                    <div class="slider btn-gutter-l"><Slider v-model="theme.fontSize" show-input :max="300" @on-change="setEvHandler"></Slider></div>
-                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.fontSize=defaultTheme.fontSize; setEvHandler();">默认</Button></Tooltip>
+                                    <div class="slider app-btn-gutter-l"><Slider v-model="theme.fontSize" show-input :max="300" @on-change="setEvHandler"></Slider></div>
+                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="app-btn-gutter-l" @click="theme.fontSize=defaultTheme.fontSize; setEvHandler();">默认</Button></Tooltip>
                                 </div>
                             </div>
 
                             <div id="set-gutter" class="set-group">
                                 <div class="set-item">
                                     <div>纸张大小</div>
-                                    <div class="slider btn-gutter-l"><Slider v-model="theme.pageWidth" show-input :min="0" :max="500" @on-change="setEvHandler"></Slider></div>
-                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.pageWidth=defaultTheme.pageWidth; setEvHandler();">默认</Button></Tooltip>
+                                    <div class="slider app-btn-gutter-l"><Slider v-model="theme.pageWidth" show-input :min="0" :max="500" @on-change="setEvHandler"></Slider></div>
+                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="app-btn-gutter-l" @click="theme.pageWidth=defaultTheme.pageWidth; setEvHandler();">默认</Button></Tooltip>
                                 </div>
 
                                 <div class="set-item">
                                     <div> 文字间隔</div>
-                                    <div class="slider btn-gutter-l"><Slider v-model="theme.letterSpacing" show-input :min="-2" :max="20" @on-change="setEvHandler"></Slider></div>
-                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.letterSpacing=defaultTheme.letterSpacing; setEvHandler();">默认</Button></Tooltip>
+                                    <div class="slider app-btn-gutter-l"><Slider v-model="theme.letterSpacing" show-input :min="-2" :max="20" @on-change="setEvHandler"></Slider></div>
+                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="app-btn-gutter-l" @click="theme.letterSpacing=defaultTheme.letterSpacing; setEvHandler();">默认</Button></Tooltip>
                                 </div>
 
                                 <div class="set-item">
                                     <div> 上下边距 </div>
-                                    <div class="slider btn-gutter-l"><Slider v-model="theme.hPadding" show-input :max="200" @on-change="setEvHandler"></Slider></div>
-                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.hPadding=defaultTheme.hPadding; setEvHandler();">默认</Button></Tooltip>
+                                    <div class="slider app-btn-gutter-l"><Slider v-model="theme.hPadding" show-input :max="200" @on-change="setEvHandler"></Slider></div>
+                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="app-btn-gutter-l" @click="theme.hPadding=defaultTheme.hPadding; setEvHandler();">默认</Button></Tooltip>
                                 </div>
 
                                 <div class="set-item">
                                     <div> 行&ensp;间&ensp;距 </div>
-                                    <div class="slider btn-gutter-l"><Slider v-model="theme.lineHeight" show-input :max="500" @on-change="setEvHandler"></Slider></div>
-                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.lineHeight=defaultTheme.lineHeight; setEvHandler();">默认</Button></Tooltip>
+                                    <div class="slider app-btn-gutter-l"><Slider v-model="theme.lineHeight" show-input :max="500" @on-change="setEvHandler"></Slider></div>
+                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="app-btn-gutter-l" @click="theme.lineHeight=defaultTheme.lineHeight; setEvHandler();">默认</Button></Tooltip>
                                 </div>
 
                                 <div class="set-item">
                                     <div> 左右边距 </div>
-                                    <div class="slider btn-gutter-l"><Slider v-model="theme.vPadding" show-input @on-change="setEvHandler"></Slider></div>
-                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="btn-gutter-l" @click="theme.vPadding=defaultTheme.vPadding; setEvHandler();">默认</Button></Tooltip>
+                                    <div class="slider app-btn-gutter-l"><Slider v-model="theme.vPadding" show-input @on-change="setEvHandler"></Slider></div>
+                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="app-btn-gutter-l" @click="theme.vPadding=defaultTheme.vPadding; setEvHandler();">默认</Button></Tooltip>
                                 </div>
                             </div>
 
@@ -275,11 +216,9 @@
                             </div>
 
                             <div style="text-align: right; margin: 10px 0px 20px 0px">
-                                <Tooltip placement="top" content="保存当前的配置为新主题"><Button type="ghost" class="btn-gutter-l" @click="addTheme">保存为主题</Button></Tooltip>
-                                <Tooltip placement="top" content="恢复本地配置为应用默认配置"><Button type="ghost" class="btn-gutter-l" @click="resetUserConf">重置</Button></Tooltip>
-                                <!--<Tooltip placement="top" content="同步服务器的配置到本地"><Button type="ghost" class="btn-gutter-l" @click="getUserConf">同步</Button></Tooltip>-->
-                                <!--<Tooltip placement="top" content="保存当前配置到服务器"><Button type="ghost" class="btn-gutter-l" @click="saveUserConf">保存</Button></Tooltip>-->
-                                <Button type="primary" class="btn-gutter-l" @click="setVisible=false">关闭</Button>
+                                <Tooltip placement="top" content="保存当前的配置为新主题"><Button type="ghost" class="app-btn-gutter-l" @click="addTheme">保存为主题</Button></Tooltip>
+                                <Tooltip placement="top" content="恢复本地配置为应用默认配置"><Button type="ghost" class="app-btn-gutter-l" @click="resetUserConf">重置</Button></Tooltip>
+                                <Button type="primary" class="app-btn-gutter-l" @click="setVisible=false">关闭</Button>
                             </div>
                         </div>
                     </DropdownMenu>
@@ -719,12 +658,5 @@ var themeList = [
             self.readPosition = new cm.ReadPosition(self.relDir + self.file, caption, self.captionTitle, 0, 0, Date());
             console.log("created readPosition: " + JSON.stringify(self.readPosition));
         }
-    }
-
-    function showAutoJumpTips(self){
-        self.$Notice.info({
-            title: '已自动跳转',
-            desc: '如果要返回跳转前的位置，请点击浏览器的后退按钮'
-        });
     }
 </script>
