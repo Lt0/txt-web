@@ -171,6 +171,7 @@
                                     <div class="slider app-btn-gutter-l"><Slider v-model="theme.fontSize" show-input :max="300" @on-change="setEvHandler"></Slider></div>
                                     <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="app-btn-gutter-l" @click="theme.fontSize=defaultTheme.fontSize; setEvHandler();">默认</Button></Tooltip>
                                 </div>
+                                <!-- <SetSlideItem title='字体大小' :v-model="theme.fontSize" :max="300" @changeSlide="setEvHandler" btnContent="应用的默认值" @clickBtn="theme.fontSize=defaultTheme.fontSize; setEvHandler();" /> -->
                             </div>
 
                             <div id="set-gutter" class="set-group">
@@ -255,6 +256,7 @@ import cm from './common/js'
 import HdrBookmarks from '@/components/hdr/HdrBookmarks'
 import HdrMore from '@/components/hdr/HdrMore'
 import HdrCatalogs from '@/components/hdr/HdrCatalogs'
+import SetSlideItem from '@/components/common/SetSlideItem'
 
 let bookRoot = '/static/cache/books/';
 let confUrl = '/static/cache/conf/user.conf';
@@ -333,6 +335,7 @@ var themeList = [
             HdrMore,
             HdrCatalogs,
             HdrBookmarks,
+            SetSlideItem,
             },
         data() {
             return {
