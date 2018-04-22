@@ -137,7 +137,7 @@
 
                 <!-- 标题栏设置按钮 -->
                 <Dropdown id="setting" placement="bottom-end" trigger="custom" transfer :visible="setVisible">
-                    <Button type="ghost" shape="circle" icon="ios-gear" class="app-btn app-btn-gutter-l" @click="setVisible? setVisible=false: setVisible=true"></Button>
+                    <AppBtn icon="ios-gear" @click="setVisible? setVisible=false: setVisible=true" />
                     <DropdownMenu slot="list">
                         <div id="setArea">
                             <div id="set-color" class="set-group">
