@@ -173,13 +173,7 @@ function userConf(theme, themeList) {
     this.theme = theme;
     this.themeList = themeList;
 }
-/* 
-exports.defaultConf = defaultConf;
-const defaultConf = {
-    theme: defaultTheme, 
-    themeList: themeList,
-}
- */
+
 exports.saveUserConf = function saveUserConf(self, conf){
     let confPath = "/api/reader/txt/user/conf";
     axios.post(confPath, conf).then(function(res){
