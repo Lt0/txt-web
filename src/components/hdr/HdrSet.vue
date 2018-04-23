@@ -92,44 +92,36 @@ export default {
             tmpConf.theme.fontBg = this.defaultTheme.fontBg; 
             tmpConf.theme.bg = this.defaultTheme.bg; 
             tmpConf.theme.hdrBg = this.defaultTheme.hdrBg; 
-
-            this.$emit('changeConf', tmpConf);
             this.setEvHandler(tmpConf);
         },
         setFontColor (arg) {
             let tmpConf = Object.assign({}, this.conf);
             tmpConf.theme.fontColor = arg;
-            this.$emit('changeConf', tmpConf);
             this.setEvHandler(tmpConf);
         },
         setFontBg (arg) {
             let tmpConf = Object.assign({}, this.conf);
             tmpConf.theme.fontBg = arg;
-            this.$emit('changeConf', tmpConf);
             this.setEvHandler(tmpConf);
         },
         setBg (arg) {
             let tmpConf = Object.assign({}, this.conf);
             tmpConf.theme.bg = arg;
-            this.$emit('changeConf', tmpConf);
             this.setEvHandler(tmpConf);
         },
         setHdrBg (arg) {
             let tmpConf = Object.assign({}, this.conf);
             tmpConf.theme.hdrBg = arg;
-            this.$emit('changeConf', tmpConf);
             this.setEvHandler(tmpConf);
         },
         setFont (arg) {
             let tmpConf = Object.assign({}, this.conf);
             tmpConf.theme.font = arg;
-            this.$emit('changeConf', tmpConf);
             this.setEvHandler(tmpConf);
         },
         resetFont (arg) {
             let tmpConf = Object.assign({}, this.conf);
             tmpConf.theme.font = this.defaultTheme.font;
-            this.$emit('changeConf', tmpConf);
             this.setEvHandler(tmpConf);
         },
         setFontSize (arg) {
@@ -140,7 +132,6 @@ export default {
         resetFontSize (arg) {
             let tmpConf = Object.assign({}, this.conf);
             tmpConf.theme.fontSize = this.defaultTheme.fontSize;
-            this.$emit('changeConf', tmpConf);
             this.setEvHandler(tmpConf);
         },
         setLetterSpacing (arg) {
@@ -151,7 +142,6 @@ export default {
         resetLetterSpacing (arg) {
             let tmpConf = Object.assign({}, this.conf);
             tmpConf.theme.letterSpacing = this.defaultTheme.letterSpacing;
-            this.$emit('changeConf', tmpConf);
             this.setEvHandler(tmpConf);
         },
         setLineHeight (arg) {
@@ -162,7 +152,6 @@ export default {
         resetLineHeight (arg) {
             let tmpConf = Object.assign({}, this.conf);
             tmpConf.theme.lineHeight = this.defaultTheme.lineHeight;
-            this.$emit('changeConf', tmpConf);
             this.setEvHandler(tmpConf);
         },
         setHPadding (arg) {
@@ -173,7 +162,6 @@ export default {
         resetHPadding (arg) {
             let tmpConf = Object.assign({}, this.conf);
             tmpConf.theme.hPadding = this.defaultTheme.hPadding;
-            this.$emit('changeConf', tmpConf);
             this.setEvHandler(tmpConf);
         },
         setVPadding (arg) {
@@ -184,7 +172,6 @@ export default {
         resetVPadding (arg) {
             let tmpConf = Object.assign({}, this.conf);
             tmpConf.theme.vPadding = this.defaultTheme.vPadding;
-            this.$emit('changeConf', tmpConf);
             this.setEvHandler(tmpConf);
         },
         setPageWidth (arg) {
@@ -195,18 +182,12 @@ export default {
         resetPageWidth (arg) {
             let tmpConf = Object.assign({}, this.conf);
             tmpConf.theme.pageWidth = this.defaultTheme.pageWidth;
-            this.$emit('changeConf', tmpConf);
             this.setEvHandler(tmpConf);
-        },
-        setEvHandler (saveConf) {
-            console.log("setEvHandler");
-            cm.saveUserConf(this, saveConf);
         },
         addTheme () {
             let tmpTheme = Object.assign({}, this.conf.theme);
             let t = new cm.themeListItem(this.conf.themeList.length + 1, tmpTheme);
             let tmpConf = new cm.userConf(Object.assign({}, tmpTheme), this.conf.themeList.concat(t));
-            this.$emit('changeConf', tmpConf);
             this.setEvHandler(tmpConf);
         },
         delTheme (t) {
@@ -224,7 +205,6 @@ export default {
 
             if (deleted) {
                 let tmpConf = new cm.userConf(this.conf.theme, list);
-                this.$emit('changeConf', tmpConf);
                 this.setEvHandler(tmpConf);
             } else {
                 this.$Modal.error({
@@ -236,13 +216,16 @@ export default {
         },
         useTheme (t) {
             let tmpConf = new cm.userConf(Object.assign({}, t.theme), this.conf.themeList);
-            this.$emit('changeConf', tmpConf);
             this.setEvHandler(tmpConf);
         },
         resetUserConf () {
             let tmpConf = new cm.userConf(Object.assign({}, cm.defaultTheme), JSON.parse(JSON.stringify(cm.themeList)));
-            this.$emit('changeConf', tmpConf);
             this.setEvHandler(tmpConf);
+        },
+        setEvHandler (saveConf) {
+            console.log("setEvHandler");
+            cm.saveUserConf(this, saveConf);
+            this.$emit('changeConf', saveConf);
         },
     },
 }
