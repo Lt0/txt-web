@@ -369,7 +369,7 @@ var themeList = [
         mounted () {
             //如果自动记录的 caption 和用户输入的 caption 相同，直接 goCaption 到自动记录的 caption 不会触发路由变化，也就不会触发获取 content 函数，所以需要手动获取一次自动记录的章节内容
             this.goCaption(this.readPosition.caption);
-            fetchCaptionContent(this, this.readPosition.caption);
+            this.fetchContent(this.readPosition.caption);
             
             //showAutoJumpTips(this);
             registkeyupHandler(this);
@@ -379,7 +379,7 @@ var themeList = [
             // 如果路由有变化，会再次执行该方法
             '$route' (to, from) {
                 this.loading = true;
-                this.fetchContent();
+                this.fetchContent(this.caption);
             },
             catalogs () {
                 this.captionTitle = cm.getCaptionTitleCur(this);
@@ -400,9 +400,8 @@ var themeList = [
             recvCatalogs (cata) {
                 this.catalogs = cata;
             },
-            fetchContent () {
-                var self = this;
-                fetchContent(self)
+            fetchContent (caption) {
+                cm.fetchCaptionContent(this, bookRoot, this.relDir, this.file, caption);
             },
             jump () {
                 console.log("jump");
@@ -481,44 +480,6 @@ var themeList = [
                 }
             },
         }
-    }
-
-    //获取当前 caption 的 content
-    function fetchContent(self) {
-        let contentUrl = bookRoot + "/" + self.relDir + "/" + self.file + "/" + self.caption;
-        console.log("fetchContent: " + contentUrl);
-
-        axios.get(contentUrl).then(function(response){
-            self.loading = false;
-            self.content = response.data;
-        }).catch(function(error){
-            console.log(error);
-            let errStr = "<p>章节文件路径: " + contentUrl + "</p>";
-            errStr += "err: " + error;
-            self.$Modal.error({
-                title: "读取章节出错",
-                content: errStr,
-            });
-        });
-    }
-
-    //获取指定 caption 的 content
-    function fetchCaptionContent(self, caption) {
-        let contentUrl = bookRoot + "/" + self.relDir + "/" + self.file + "/" + caption;
-        console.log("fetchCaptionContent: " + contentUrl);
-
-        axios.get(contentUrl).then(function(response){
-            self.loading = false;
-            self.content = response.data;
-        }).catch(function(error){
-            console.log(error);
-            let errStr = "<p>章节文件路径: " + contentUrl + "</p>";
-            errStr += "err: " + error;
-            self.$Modal.error({
-                title: "读取章节出错",
-                content: errStr,
-            });
-        });
     }
 
     function goPrev(self) {

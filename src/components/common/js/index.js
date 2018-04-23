@@ -1,3 +1,4 @@
+var axios = require('axios')
 
 exports.getCaptionTitleCur = function getCaptionTitleCur(self){
     let caption = self.caption;
@@ -59,4 +60,23 @@ exports.goCaption = function goCaption(self, relDir, file, caption){
     let p = "/read/" + relDir + "/" + file + "/" + caption;
     console.log("goCaption: " + p);
     self.$router.push({ path: caption });
+}
+
+//获取指定 caption 的 content
+exports.fetchCaptionContent = function fetchCaptionContent(self, bookRoot, relDir, file, caption) {
+    self.loading = true;
+    let contentUrl = bookRoot + "/" + relDir + "/" + file + "/" + caption;
+    console.log("fetchCaptionContent: " + contentUrl);
+    axios.get(contentUrl).then(function(response){
+        self.loading = false;
+        self.content = response.data;
+    }).catch(function(error){
+        console.log(error);
+        let errStr = "<p>章节文件路径: " + contentUrl + "</p>";
+        errStr += "err: " + error;
+        self.$Modal.error({
+            title: "读取章节出错",
+            content: errStr,
+        });
+    });
 }
