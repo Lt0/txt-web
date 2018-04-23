@@ -165,15 +165,15 @@
                                 </Select>
                                 <!-- 如果已设置过字体，点击默认是会触发 select 的 on-change 事件，这里不需要再绑定 on-change 事件 -->
                                 <Tooltip content="使用浏览器默认字体"><Button type="ghost" size="small" class="app-btn-gutter" @click="theme.font=defaultTheme.font;">默认</Button> </Tooltip>
-                                <SetSlideItem title='字体大小' v-model="theme.fontSize" :max="300" @changeSlide="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.fontSize=defaultTheme.fontSize; setEvHandler();" />
+                                <SetSlideItem title='字体大小' v-model="theme.fontSize" :max="300" @changeSlideEnd="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.fontSize=defaultTheme.fontSize; setEvHandler();" />
                             </div>
 
                             <div id="set-gutter" class="set-group">
-                                <SetSlideItem title='文字间隔' v-model="theme.letterSpacing" :min="-2" :max="20" @changeSlide="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.letterSpacing=defaultTheme.letterSpacing; setEvHandler();" />
-                                <SetSlideItem title='行&ensp;间&ensp;距' v-model="theme.lineHeight" :max="500" @changeSlide="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.lineHeight=defaultTheme.lineHeight; setEvHandler();" />
-                                <SetSlideItem title='上下边距' v-model="theme.hPadding" :max="300" @changeSlide="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.hPadding=defaultTheme.hPadding; setEvHandler();" />
-                                <SetSlideItem title='左右边距' v-model="theme.vPadding" :max="300" @changeSlide="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.vPadding=defaultTheme.vPadding; setEvHandler();" />
-                                <SetSlideItem title='纸张大小' v-model="theme.pageWidth" :max="500" @changeSlide="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.pageWidth=defaultTheme.pageWidth; setEvHandler();" />
+                                <SetSlideItem title='文字间隔' v-model="theme.letterSpacing" :min="-2" :max="20" @changeSlideEnd="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.letterSpacing=defaultTheme.letterSpacing; setEvHandler();" />
+                                <SetSlideItem title='行&ensp;间&ensp;距' v-model="theme.lineHeight" :max="500" @changeSlideEnd="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.lineHeight=defaultTheme.lineHeight; setEvHandler();" />
+                                <SetSlideItem title='上下边距' v-model="theme.hPadding" :max="300" @changeSlideEnd="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.hPadding=defaultTheme.hPadding; setEvHandler();" />
+                                <SetSlideItem title='左右边距' v-model="theme.vPadding" :max="300" @changeSlideEnd="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.vPadding=defaultTheme.vPadding; setEvHandler();" />
+                                <SetSlideItem title='纸张大小' v-model="theme.pageWidth" :max="500" @changeSlideEnd="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.pageWidth=defaultTheme.pageWidth; setEvHandler();" />
                             </div>
 
                             <div id="set-theme" class="set-group">
@@ -229,7 +229,6 @@ import HdrCatalogs from '@/components/hdr/HdrCatalogs'
 import SetSlideItem from '@/components/common/SetSlideItem'
 
 let bookRoot = '/static/cache/books/';
-let confUrl = '/static/cache/conf/user.conf';
 
 const colors = ['#1c2438', '#495060', '#80848f', '#bbbec4', '#dddee1', '#e9eaec', '#f8f8f9', '#EFF3F6', '#f5f7f9', '#fff'];
 const basePageWidth = 8;
@@ -249,10 +248,6 @@ function theme(hdrBg, bg, fontBg, fontColor, font, fontSize, lineHeight, vPaddin
 function themeListItem(name, theme) {
     this.name = name;
     this.theme = theme;
-}
-function userConf(theme, themeList) {
-    this.theme = theme;
-    this.themeList = themeList;
 }
 
 const defaultTheme = {
@@ -354,7 +349,7 @@ var themeList = [
             },
         },
         beforeCreate () {
-            getUserConf(this);
+            cm.getUserConf(this);
         },
         created () {
             // 组件创建完后获取数据，
@@ -444,20 +439,13 @@ var themeList = [
                 this.theme = tmpTheme;
                 this.setEvHandler();
             },
-            saveUserConf () {
-                saveUserConf(this);
-            },
-            getUserConf () {
-                let self = this;
-                getUserConf(self);
-            },
             resetUserConf () {
                 this.theme = Object.assign({}, defaultTheme);
                 this.themeList = [defaultThemeListItem, darkThemeListItem];
             },
             setEvHandler () {
                 console.log("setEvHandler");
-                saveUserConf(this);
+                cm.saveUserConf(this);
             },
             saveReadPosition () {
                 saveReadPosition(this);
@@ -499,53 +487,6 @@ var themeList = [
         if ((nextIndex-1) >= self.catalogs.length) return;
         let nextCaption = nextIndex + ".txt";
         self.goCaption(nextCaption);
-    }
-
-    function saveUserConf(self){
-        let conf = new userConf(self.theme, self.themeList);
-
-        let confPath = "/api/reader/txt/user/conf";
-        axios.post(confPath, conf).then(function(res){
-            console.log(res)
-            if (res.data == null || res.data == "") {
-                self.$Message.info("保存成功");
-            } else {
-                self.$Message.error({duration: 15, closable: true, content: "保存出错: " + res.data});
-            }
-        }).catch(function(err){
-            console.log(err);
-            self.$Message.error({duration: 15, closable: true, content: "连接出错: " + err});
-        });
-    }
-
-    function getUserConf(self){
-        console.log("get user conf: " + confUrl);
-        //printUserConf(self);
-        axios.get(confUrl).then(function(response){
-            if (response.status != 200) {
-                self.$Message.warning({duration: 15, closable: true, content: "then: 同步服务端配置到本地出错：" + response.status});
-                return;
-            }
-
-            if (!response.data) {
-                self.$Message.info("服务端没有配置");
-                return;
-            }
-
-            let conf = response.data;
-            self.theme = conf.theme;
-            self.themeList = conf.themeList;
-            //self.$Message.info("服务端配置已同步到本地");
-        }).catch(function(error){
-            self.$Message.error({duration: 15, closable: true, content: "同步服务端配置到本地失败: " + error});
-        });
-    }
-
-    function printUserConf(self) {
-        console.log("========================================");
-        let conf = new userConf(self.theme, self.themeList);
-        console.log(JSON.stringify(conf));
-        console.log("========================================");
     }
 
     function registkeyupHandler(self){
