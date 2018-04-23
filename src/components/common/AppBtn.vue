@@ -1,5 +1,5 @@
 <template>
-<Button type="ghost" shape="circle" :icon="icon" class="app-btn app-btn-gutter-l" @click="click"></Button>
+<Button type="ghost" shape="circle" :icon="icon" class="app-btn" @click="click"></Button>
 </template>
 
 <script>

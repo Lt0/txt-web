@@ -83,10 +83,10 @@
             <div id="hdr-left">{{ captionTitle }}</div>
             <div id="hdr-center"></div>
             <div id="hdr-right">
-                <HdrBookmarks :relDir="relDir" :file="file" :caption="caption" :captionTitle="captionTitle" @goBookmarkEv="goBookmarkEvHandler" />
-                <HdrCatalogs :bookRoot="bookRoot" :relDir="relDir" :file="file" :caption="caption" @goCaptionByCatalog="goCaption" @sendCatalogs="recvCatalogs" />
-                <HdrSet v-model="conf" />
-                <HdrMore :bookRoot="bookRoot" :relDir="relDir" :file="file"/>
+                <HdrBookmarks class="app-btn-gutter-l" :relDir="relDir" :file="file" :caption="caption" :captionTitle="captionTitle" @goBookmarkEv="goBookmarkEvHandler" />
+                <HdrCatalogs class="app-btn-gutter-l" :bookRoot="bookRoot" :relDir="relDir" :file="file" :caption="caption" @goCaptionByCatalog="goCaption" @sendCatalogs="recvCatalogs" />
+                <HdrSet class="app-btn-gutter-l" v-model="conf" />
+                <HdrMore class="app-btn-gutter-l" :bookRoot="bookRoot" :relDir="relDir" :file="file"/>
             </div>
         </div>
     </div>
@@ -94,7 +94,7 @@
     <div id="main" @scroll.native="saveReadPosition">
         <div id="main-layout">
             <div id="left" v-on:click="goPrev">
-                <Button id="goPrev" type="text" shape="circle" icon="ios-arrow-back" class="btn"></Button>
+                <AppBtn id="goPrev" icon="ios-arrow-back" />
             </div>
             <div id="center">
                 <div :style="{background: conf.theme.fontBg, color: conf.theme.fontColor, fontSize: conf.theme.fontSize+'%', lineHeight: conf.theme.lineHeight+'%', letterSpacing: conf.theme.letterSpacing+'px', paddingLeft: conf.theme.vPadding+'px', paddingRight: conf.theme.vPadding+'px', paddingTop: conf.theme.hPadding+'px', paddingBottom: conf.theme.hPadding+'px', width: (conf.theme.pageWidth*basePageWidth)+'px'}">
@@ -104,7 +104,7 @@
                 <Footer class="layout-footer-center footer" :style="{background: 'transparent'}">2018 &copy; lightimehpq@gmail.com</Footer>
             </div>
             <div id="right" v-on:click="goNext">
-                <Button id="goNext" type="text" shape="circle" icon="ios-arrow-forward" class="btn"></Button>
+                <AppBtn id="goNext" icon="ios-arrow-forward" />
             </div>
         </div>
         
