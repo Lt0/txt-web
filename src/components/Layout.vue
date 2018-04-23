@@ -75,126 +75,17 @@
     #caption-title{
         padding-bottom: 20px;
     }
-
-    #setArea {
-        width: 620px;
-        
-        padding: 0px 30px;
-    }
-    .set-group{
-        padding: 16px 0px;
-    }
-    .set-item{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .set-title{
-        padding-bottom: 16px;
-    }
-    .set-item .slider{
-        flex-grow: 1;
-    }
-    .theme-list{
-        display: flex;
-        justify-content: flex-start;
-        flex-wrap: wrap;
-    }
-    .theme-item{
-        width: 90px;
-        height: 90px;
-        margin: 5px 5px 0px 0px;       
-    }
-    .theme-item-content{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .theme-close-container{
-        display: flex;
-        justify-content: flex-end;
-
-        height: 30px;
-    }
-    .theme-close-btn{
-        margin-right: 6px;
-        margin-top: 6px;
-        cursor: pointer;
-    }
 </style>
 <template>
-<div id="layout" :style="{background: theme.bg, fontFamily: theme.font}">
-    <div id="hdr" :style="{background: theme.hdrBg}">
+<div id="layout" :style="{background: conf.theme.bg, fontFamily: conf.theme.font}">
+    <div id="hdr" :style="{background: conf.theme.hdrBg}">
         <div id="hdr-container">
             <div id="hdr-left">{{ captionTitle }}</div>
             <div id="hdr-center"></div>
             <div id="hdr-right">
-                <!-- 标题栏书签按钮 -->
                 <HdrBookmarks :relDir="relDir" :file="file" :caption="caption" :captionTitle="captionTitle" @goBookmarkEv="goBookmarkEvHandler" />
-
-                <!-- 标题栏章节按钮 -->
                 <HdrCatalogs :bookRoot="bookRoot" :relDir="relDir" :file="file" :caption="caption" @goCaptionByCatalog="goCaption" @sendCatalogs="recvCatalogs" />
-
-                <!-- 标题栏设置按钮 -->
-                <Dropdown id="setting" placement="bottom-end" trigger="custom" transfer :visible="setVisible">
-                    <AppBtn icon="ios-gear" @click="setVisible? setVisible=false: setVisible=true" />
-                    <DropdownMenu slot="list">
-                        <div id="setArea">
-                            <div id="set-color" class="set-group">
-                                <div class="set-title">
-                                    颜色设置
-                                    <Tooltip content="使用浏览器默认字体">
-                                        <Button type="ghost" size="small" class="app-btn-gutter-l" @click="theme.fontColor = defaultTheme.fontColor; theme.fontBg = defaultTheme.fontBg; theme.bg = defaultTheme.bg; theme.hdrBg=defaultTheme.hdrBg; setEvHandler();">
-                                            默认
-                                        </Button>
-                                    </Tooltip>
-                                </div>
-                                <div class="set-item">
-                                    <div>文字: <ColorPicker v-model="theme.fontColor" :colors="colors" size="small" @on-change="setEvHandler" /></div>
-                                    <div class="app-btn-gutter-l">纸张: <ColorPicker v-model="theme.fontBg" :colors="colors" size="small" @on-change="setEvHandler" /></div>
-                                    <div class="app-btn-gutter-l">背景: <ColorPicker v-model="theme.bg" :colors="colors" size="small" @on-change="setEvHandler" /></div>
-                                    <div class="app-btn-gutter-l">页首: <ColorPicker v-model="theme.hdrBg" :colors="colors" size="small" @on-change="setEvHandler" /></div>
-                                    
-                                </div>
-                            </div>
-
-                            <div id="set-font" class="set-group">
-                                <div class="set-title">字体设置</div>字体
-                                <Select v-model="theme.font" placeholder=theme.font size="small" filterable style="width:150px" class="app-btn-gutter-l" @on-change="setEvHandler">
-                                    <Option v-for="item in fontList" :value="item.name" :key="item.index">{{ item.name }}</Option>
-                                </Select>
-                                <!-- 如果已设置过字体，点击默认是会触发 select 的 on-change 事件，这里不需要再绑定 on-change 事件 -->
-                                <Tooltip content="使用浏览器默认字体"><Button type="ghost" size="small" class="app-btn-gutter" @click="theme.font=defaultTheme.font;">默认</Button> </Tooltip>
-                                <SetSlideItem title='字体大小' v-model="theme.fontSize" :max="300" @changeSlideEnd="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.fontSize=defaultTheme.fontSize; setEvHandler();" />
-                            </div>
-
-                            <div id="set-gutter" class="set-group">
-                                <SetSlideItem title='文字间隔' v-model="theme.letterSpacing" :min="-2" :max="20" @changeSlideEnd="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.letterSpacing=defaultTheme.letterSpacing; setEvHandler();" />
-                                <SetSlideItem title='行&ensp;间&ensp;距' v-model="theme.lineHeight" :max="500" @changeSlideEnd="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.lineHeight=defaultTheme.lineHeight; setEvHandler();" />
-                                <SetSlideItem title='上下边距' v-model="theme.hPadding" :max="300" @changeSlideEnd="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.hPadding=defaultTheme.hPadding; setEvHandler();" />
-                                <SetSlideItem title='左右边距' v-model="theme.vPadding" :max="300" @changeSlideEnd="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.vPadding=defaultTheme.vPadding; setEvHandler();" />
-                                <SetSlideItem title='纸张大小' v-model="theme.pageWidth" :max="500" @changeSlideEnd="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.pageWidth=defaultTheme.pageWidth; setEvHandler();" />
-                            </div>
-
-                            <div id="set-theme" class="set-group">
-                                <div class="set-title">主题设置</div>
-                                <div class="theme-list">
-                                    <div class="theme-item" v-for="t in themeList" :key="t.index" @click="useTheme(t)" :style="{background: t.theme.bg, color: t.theme.fontColor}">
-                                        <div class="theme-close-container"><Tooltip placement="top" content="彻底删除主题"><div @click.stop="delTheme(t)"><Icon type="close-circled" size="15" class="theme-close-btn"></Icon></div></Tooltip></div>
-                                        <div class="theme-item-content"><div :style="{background: t.theme.fontBg, padding: '10px', width: '80%', textAlign: 'center',}">{{ t.name }}</div></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div style="text-align: right; margin: 10px 0px 20px 0px">
-                                <Tooltip placement="top" content="保存当前的配置为新主题"><Button type="ghost" class="app-btn-gutter-l" @click="addTheme">保存为主题</Button></Tooltip>
-                                <Tooltip placement="top" content="恢复本地配置为应用默认配置"><Button type="ghost" class="app-btn-gutter-l" @click="resetUserConf">重置</Button></Tooltip>
-                                <Button type="primary" class="app-btn-gutter-l" @click="setVisible=false">关闭</Button>
-                            </div>
-                        </div>
-                    </DropdownMenu>
-                </Dropdown>
-
+                <HdrSet v-model="conf" />
                 <HdrMore :bookRoot="bookRoot" :relDir="relDir" :file="file"/>
             </div>
         </div>
@@ -206,7 +97,7 @@
                 <Button id="goPrev" type="text" shape="circle" icon="ios-arrow-back" class="btn"></Button>
             </div>
             <div id="center">
-                <div :style="{background: theme.fontBg, color: theme.fontColor, fontSize: theme.fontSize+'%', lineHeight: theme.lineHeight+'%', letterSpacing: theme.letterSpacing+'px', paddingLeft: theme.vPadding+'px', paddingRight: theme.vPadding+'px', paddingTop: theme.hPadding+'px', paddingBottom: theme.hPadding+'px', width: (theme.pageWidth*basePageWidth)+'px'}">
+                <div :style="{background: conf.theme.fontBg, color: conf.theme.fontColor, fontSize: conf.theme.fontSize+'%', lineHeight: conf.theme.lineHeight+'%', letterSpacing: conf.theme.letterSpacing+'px', paddingLeft: conf.theme.vPadding+'px', paddingRight: conf.theme.vPadding+'px', paddingTop: conf.theme.hPadding+'px', paddingBottom: conf.theme.hPadding+'px', width: (conf.theme.pageWidth*basePageWidth)+'px'}">
                     <h2 id="caption-title">{{ captionTitle }}</h2>
                     <p id="content">{{ content }}</p>
                 </div>
@@ -226,81 +117,17 @@ import cm from './common/js'
 import HdrBookmarks from '@/components/hdr/HdrBookmarks'
 import HdrMore from '@/components/hdr/HdrMore'
 import HdrCatalogs from '@/components/hdr/HdrCatalogs'
-import SetSlideItem from '@/components/common/SetSlideItem'
+import HdrSet from '@/components/hdr/HdrSet'
 
 let bookRoot = '/static/cache/books/';
-
-const colors = ['#1c2438', '#495060', '#80848f', '#bbbec4', '#dddee1', '#e9eaec', '#f8f8f9', '#EFF3F6', '#f5f7f9', '#fff'];
-const basePageWidth = 8;
-function theme(hdrBg, bg, fontBg, fontColor, font, fontSize, lineHeight, vPadding, hPadding, letterSpacing, pageWidth) {
-    this.hdrBg = hdrBg;
-    this.bg = bg;
-    this.fontBg = fontBg;
-    this.fontColor = fontColor;
-    this.font = font;
-    this.fontSize = fontSize;
-    this.lineHeight = lineHeight;
-    this.vPadding = vPadding;
-    this.hPadding = hPadding;
-    this.latterSpacing = letterSpacing;
-    this.pageWidth = pageWidth;             // width = pageWidth*basePageWidth + 'px'
-}
-function themeListItem(name, theme) {
-    this.name = name;
-    this.theme = theme;
-}
-
-const defaultTheme = {
-    hdrBg: '#EFF3F6', 
-    bg: '#f5f7f9', 
-    fontBg: '#fff', 
-    fontColor: '#495060',
-    font: "",
-    fontSize: 120,
-    lineHeight: 200,
-    vPadding: 50,
-    hPadding: 50,
-    letterSpacing: 0,
-    pageWidth: 100,
-    };
-
-const darkTheme = {
-    hdrBg: '#1C2438', 
-    bg: '#495060', 
-    fontBg: '#39404F', 
-    fontColor: '#E9EAEC',
-    font: "",
-    fontSize: 120,
-    lineHeight: 200,
-    vPadding: 50,
-    hPadding: 50,
-    letterSpacing: 0,
-    pageWidth: 100,
-    };
-
-const fontList = [
-    {name: 'Helvetica Neue'}, 
-    {name: 'Helvetica'}, 
-    {name: 'PingFang SC'}, 
-    {name: 'Hiragino Sans GB'}, 
-    {name: 'Microsoft YaHei'}, 
-    {name: '微软雅黑'}, 
-    {name: 'Arial'}, 
-    {name: 'sans-serif'},
-    ];
-const defaultThemeListItem = new themeListItem("default", defaultTheme);
-const darkThemeListItem = new themeListItem("dark", darkTheme);
-var themeList = [
-    defaultThemeListItem,
-    darkThemeListItem,
-];
+let conf = new cm.userConf(Object.assign({}, cm.defaultTheme), JSON.parse(JSON.stringify(cm.themeList)));
     
     export default {
         components: {
             HdrMore,
             HdrCatalogs,
             HdrBookmarks,
-            SetSlideItem,
+            HdrSet,
             },
         data() {
             return {
@@ -311,13 +138,8 @@ var themeList = [
                 captionTitle: null,
                 content: null,
                 loading: true,
-                setVisible: false,
-                colors: colors,
-                fontList: fontList,
-                basePageWidth: basePageWidth,
-                defaultTheme: defaultTheme,
-                theme: Object.assign({}, defaultTheme),
-                themeList: themeList,
+                basePageWidth: cm.basePageWidth,
+                conf: conf,
                 bookInfoModal: false,
                 readPosition: null,
             }
@@ -348,25 +170,20 @@ var themeList = [
                 return params[params.length-1];
             },
         },
-        beforeCreate () {
-            cm.getUserConf(this);
-        },
         created () {
             // 组件创建完后获取数据，
             // 此时 data 已经被 observed 了
-            console.log("created: path: " + this.path);
+/*             console.log("created: path: " + this.path);
             console.log("created: relDir: " + this.relDir);
             console.log("created: file: " + this.file);
-            console.log("created: caption: " + this.caption);
+            console.log("created: caption: " + this.caption); */
             getReadPosition(this);
-            //this.fetchCatalogs();
         },
         mounted () {
             //如果自动记录的 caption 和用户输入的 caption 相同，直接 goCaption 到自动记录的 caption 不会触发路由变化，也就不会触发获取 content 函数，所以需要手动获取一次自动记录的章节内容
             this.goCaption(this.readPosition.caption);
             this.fetchContent(this.readPosition.caption);
             
-            //showAutoJumpTips(this);
             registkeyupHandler(this);
             registScrollHandler(this);
         },
@@ -385,10 +202,6 @@ var themeList = [
 
                 this.$nextTick(this.setReadPositionScroll);
                 this.$nextTick(this.saveReadPosition);
-            },
-            themeList: function () {
-                // 直接在这里监听的话，载入页面时加载用户配置也会更改 themeList 导致指出 setEvHandler
-                //this.setEvHandler();
             },
         },
         methods: {
@@ -417,35 +230,6 @@ var themeList = [
             goNext () {
                 let self = this;
                 goNext(self)
-            },
-            addTheme () {
-                const tmpTheme = Object.assign({}, this.theme);
-                const t = new themeListItem(this.themeList.length + 1, tmpTheme);
-                this.themeList.push(t);
-                this.setEvHandler();
-            },
-            delTheme (t) {
-                console.log("delTheme: " + t.name);
-                for (let i=0; i<this.themeList.length; i++){
-                    if (t.name == this.themeList[i].name){
-                        this.themeList.splice(i, 1);
-                        break;
-                    }
-                }
-                this.setEvHandler();
-            },
-            useTheme (t) {
-                const tmpTheme = Object.assign({}, t.theme); 
-                this.theme = tmpTheme;
-                this.setEvHandler();
-            },
-            resetUserConf () {
-                this.theme = Object.assign({}, defaultTheme);
-                this.themeList = [defaultThemeListItem, darkThemeListItem];
-            },
-            setEvHandler () {
-                console.log("setEvHandler");
-                cm.saveUserConf(this);
             },
             saveReadPosition () {
                 saveReadPosition(this);

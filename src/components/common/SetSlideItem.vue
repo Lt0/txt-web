@@ -2,7 +2,7 @@
     <div class="set-item">
         <div v-html="title"></div>
         <div class="slider app-btn-gutter-l">
-            <Slider :value="value" @input="changeSlide" show-input :min="min" :max="max" @on-change="changeSlideEnd"></Slider>
+            <Slider :value="value" @input="input" show-input :min="min" :max="max" @on-input="slide" @on-change="slideEnd"></Slider>
         </div>
         <Tooltip placement="top" :content="btnTips">
             <Button type="ghost" class="app-btn-gutter-l" @click="clickBtn">
@@ -19,7 +19,8 @@
 // v-model: 双向绑定的变量
 // :min: 滑块的最小值
 // :max: 滑块的最大值
-// @changeSlideEnd: 滑块操作结束后触发的事件
+// @slide: 滑块滑动过程中不断触发的事件
+// @slideEnd: 滑块操作结束后触发的事件
 
 // btnTips: 默认按钮的 Tooltips 说明
 // @clickBtn: 点击默认按钮触发的事件
@@ -30,11 +31,14 @@ export default {
     props: ['title', 'value', 'min', 'max', 'btnTips'],
 
     methods: {
-        changeSlide (arg) {
+        input (arg) {
             this.$emit('input', arg);
         },
-        changeSlideEnd (arg) {
-            this.$emit('changeSlideEnd', arg);
+        slide (arg) {
+            this.$emit('slide', arg);
+        },
+        slideEnd (arg) {
+            this.$emit('slideEnd', arg);
         },
         clickBtn (arg) {
             this.$emit('clickBtn', arg);
