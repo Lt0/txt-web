@@ -71,10 +71,6 @@
         top: 50%;
         left: 20px;
     }
-
-    #caption-title{
-        padding-bottom: 20px;
-    }
 </style>
 <template>
 <div id="layout" :style="{background: conf.theme.bg, fontFamily: conf.theme.font}">
@@ -97,10 +93,7 @@
                 <AppBtn id="goPrev" icon="ios-arrow-back" />
             </div>
             <div id="center">
-                <div :style="{background: conf.theme.fontBg, color: conf.theme.fontColor, fontSize: conf.theme.fontSize+'%', lineHeight: conf.theme.lineHeight+'%', letterSpacing: conf.theme.letterSpacing+'px', paddingLeft: conf.theme.vPadding+'px', paddingRight: conf.theme.vPadding+'px', paddingTop: conf.theme.hPadding+'px', paddingBottom: conf.theme.hPadding+'px', width: (conf.theme.pageWidth*basePageWidth)+'px'}">
-                    <h2 id="caption-title">{{ captionTitle }}</h2>
-                    <p id="content">{{ content }}</p>
-                </div>
+                <Content :bookRoot="bookRoot" :relDir="relDir" :file="file" :caption="caption" :conf="conf" :catalogs="catalogs" />
                 <Footer class="layout-footer-center footer" :style="{background: 'transparent'}">2018 &copy; lightimehpq@gmail.com</Footer>
             </div>
             <div id="right" v-on:click="goNext">
@@ -118,6 +111,7 @@ import HdrBookmarks from '@/components/hdr/HdrBookmarks'
 import HdrMore from '@/components/hdr/HdrMore'
 import HdrCatalogs from '@/components/hdr/HdrCatalogs'
 import HdrSet from '@/components/hdr/HdrSet'
+import Content from '@/components/Content'
 
 let bookRoot = '/static/cache/books/';
 let conf = new cm.userConf(Object.assign({}, cm.defaultTheme), JSON.parse(JSON.stringify(cm.themeList)));
@@ -128,6 +122,7 @@ let conf = new cm.userConf(Object.assign({}, cm.defaultTheme), JSON.parse(JSON.s
             HdrCatalogs,
             HdrBookmarks,
             HdrSet,
+            Content,
             },
         data() {
             return {
@@ -136,9 +131,9 @@ let conf = new cm.userConf(Object.assign({}, cm.defaultTheme), JSON.parse(JSON.s
                 fileInfo: null,
                 catalogs: null,
                 captionTitle: null,
-                content: null,
+                /* content: null, */
                 loading: true,
-                basePageWidth: cm.basePageWidth,
+                /* basePageWidth: cm.basePageWidth, */
                 conf: conf,
                 bookInfoModal: false,
                 readPosition: null,
@@ -167,49 +162,28 @@ let conf = new cm.userConf(Object.assign({}, cm.defaultTheme), JSON.parse(JSON.s
                 if (!this.$route.params.path) return null;
                 let params = this.$route.params.path.split("/");
                 if (params.length < 2) return null;
+                console.log("recomputed caption: " + params[params.length-1]);
                 return params[params.length-1];
             },
         },
         created () {
             // 组件创建完后获取数据，
             // 此时 data 已经被 observed 了
-/*             console.log("created: path: " + this.path);
+            /* console.log("created: path: " + this.path);
             console.log("created: relDir: " + this.relDir);
             console.log("created: file: " + this.file);
             console.log("created: caption: " + this.caption); */
-            getReadPosition(this);
         },
         mounted () {
-            //如果自动记录的 caption 和用户输入的 caption 相同，直接 goCaption 到自动记录的 caption 不会触发路由变化，也就不会触发获取 content 函数，所以需要手动获取一次自动记录的章节内容
-            this.goCaption(this.readPosition.caption);
-            this.fetchContent(this.readPosition.caption);
-            
-            registkeyupHandler(this);
-            registScrollHandler(this);
         },
         watch: {
             // 如果路由有变化，会再次执行该方法
             '$route' (to, from) {
-                this.loading = true;
-                this.fetchContent(this.caption);
-            },
-            catalogs () {
-                this.captionTitle = cm.getCaptionTitleCur(this);
-            },
-            content () {
-                console.log("content changed");
-                this.captionTitle = cm.getCaptionTitleCur(this);
-
-                this.$nextTick(this.setReadPositionScroll);
-                this.$nextTick(this.saveReadPosition);
             },
         },
         methods: {
             recvCatalogs (cata) {
                 this.catalogs = cata;
-            },
-            fetchContent (caption) {
-                cm.fetchCaptionContent(this, bookRoot, this.relDir, this.file, caption);
             },
             jump () {
                 console.log("jump");
@@ -230,12 +204,6 @@ let conf = new cm.userConf(Object.assign({}, cm.defaultTheme), JSON.parse(JSON.s
             goNext () {
                 let self = this;
                 goNext(self)
-            },
-            saveReadPosition () {
-                saveReadPosition(this);
-            },
-            setReadPositionScroll () {
-                cm.setReadPositionScroll(this);
             },
             goBookmarkEvHandler (readPosition) {
                 console.log("goBookmarkEvHandler");
@@ -271,51 +239,5 @@ let conf = new cm.userConf(Object.assign({}, cm.defaultTheme), JSON.parse(JSON.s
         if ((nextIndex-1) >= self.catalogs.length) return;
         let nextCaption = nextIndex + ".txt";
         self.goCaption(nextCaption);
-    }
-
-    function registkeyupHandler(self){
-        console.log("registkeyupHandler");
-        document.onkeyup = function(ev){
-            console.log("registkeyupHandler");
-            switch (ev.keyCode) {
-                case 37: //left
-                    self.goPrev();
-                    break;
-                case 39: //right
-                    self.goNext();
-                    break;
-                default:
-            }
-        }
-    }
-
-    function registScrollHandler(self) {
-        console.log("registScrollHandler");
-        let m = document.getElementById("main");
-        m.onscroll = function() {
-            saveReadPosition(self);
-        }
-    }
-
-    // 保存当前阅读进度到自动进度记录 self.readPosition
-    function saveReadPosition(self){
-        cm.updateReadPosition(self, self.readPosition);
-        localStorage.setItem(self.readPosition.key, JSON.stringify(self.readPosition));
-        //console.log("saved readPosition: " + JSON.stringify(self.readPosition));
-    }
-
-    //从本地读取之前的阅读进度记录
-    function getReadPosition(self){
-        console.log("getReadPosition for " + self.relDir + self.file);
-        let key = "readPosition-" + self.relDir + self.file;
-        self.readPosition = JSON.parse(localStorage.getItem(key));
-        
-        if (!self.readPosition) {
-            console.log("no saved readPosition for this file, create.");
-            let caption = self.caption;
-
-            self.readPosition = new cm.ReadPosition(self.relDir + self.file, caption, self.captionTitle, 0, 0, Date());
-            console.log("created readPosition: " + JSON.stringify(self.readPosition));
-        }
     }
 </script>
