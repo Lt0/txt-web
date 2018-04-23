@@ -6,7 +6,7 @@
             <div id="set-color" class="set-group">
                 <div class="set-title">
                     颜色设置
-                    <Tooltip content="使用浏览器默认字体">
+                    <Tooltip content="使用默认主题色">
                         <Button type="ghost" size="small" class="app-btn-gutter-l" @click="resetAllColors">
                             默认
                         </Button>
