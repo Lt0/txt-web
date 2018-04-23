@@ -160,50 +160,20 @@
 
                             <div id="set-font" class="set-group">
                                 <div class="set-title">字体设置</div>字体
-                                    <Select v-model="theme.font" placeholder=theme.font size="small" filterable style="width:150px" class="app-btn-gutter-l" @on-change="setEvHandler">
-                                        <Option v-for="item in fontList" :value="item.name" :key="item.index">{{ item.name }}</Option>
-                                    </Select>
-                                    <!-- 如果已设置过字体，点击默认是会触发 select 的 on-change 事件，这里不需要再绑定 on-change 事件 -->
-                                    <Tooltip content="使用浏览器默认字体"><Button type="ghost" size="small" class="app-btn-gutter" @click="theme.font=defaultTheme.font;">默认</Button> </Tooltip>
-
-                                <div class="set-item">
-                                    <div>字体大小</div>
-                                    <div class="slider app-btn-gutter-l"><Slider v-model="theme.fontSize" show-input :max="300" @on-change="setEvHandler"></Slider></div>
-                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="app-btn-gutter-l" @click="theme.fontSize=defaultTheme.fontSize; setEvHandler();">默认</Button></Tooltip>
-                                </div>
-                                <!-- <SetSlideItem title='字体大小' :v-model="theme.fontSize" :max="300" @changeSlide="setEvHandler" btnContent="应用的默认值" @clickBtn="theme.fontSize=defaultTheme.fontSize; setEvHandler();" /> -->
+                                <Select v-model="theme.font" placeholder=theme.font size="small" filterable style="width:150px" class="app-btn-gutter-l" @on-change="setEvHandler">
+                                    <Option v-for="item in fontList" :value="item.name" :key="item.index">{{ item.name }}</Option>
+                                </Select>
+                                <!-- 如果已设置过字体，点击默认是会触发 select 的 on-change 事件，这里不需要再绑定 on-change 事件 -->
+                                <Tooltip content="使用浏览器默认字体"><Button type="ghost" size="small" class="app-btn-gutter" @click="theme.font=defaultTheme.font;">默认</Button> </Tooltip>
+                                <SetSlideItem title='字体大小' v-model="theme.fontSize" :max="300" @changeSlide="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.fontSize=defaultTheme.fontSize; setEvHandler();" />
                             </div>
 
                             <div id="set-gutter" class="set-group">
-                                <div class="set-item">
-                                    <div>纸张大小</div>
-                                    <div class="slider app-btn-gutter-l"><Slider v-model="theme.pageWidth" show-input :min="0" :max="500" @on-change="setEvHandler"></Slider></div>
-                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="app-btn-gutter-l" @click="theme.pageWidth=defaultTheme.pageWidth; setEvHandler();">默认</Button></Tooltip>
-                                </div>
-
-                                <div class="set-item">
-                                    <div> 文字间隔</div>
-                                    <div class="slider app-btn-gutter-l"><Slider v-model="theme.letterSpacing" show-input :min="-2" :max="20" @on-change="setEvHandler"></Slider></div>
-                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="app-btn-gutter-l" @click="theme.letterSpacing=defaultTheme.letterSpacing; setEvHandler();">默认</Button></Tooltip>
-                                </div>
-
-                                <div class="set-item">
-                                    <div> 上下边距 </div>
-                                    <div class="slider app-btn-gutter-l"><Slider v-model="theme.hPadding" show-input :max="200" @on-change="setEvHandler"></Slider></div>
-                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="app-btn-gutter-l" @click="theme.hPadding=defaultTheme.hPadding; setEvHandler();">默认</Button></Tooltip>
-                                </div>
-
-                                <div class="set-item">
-                                    <div> 行&ensp;间&ensp;距 </div>
-                                    <div class="slider app-btn-gutter-l"><Slider v-model="theme.lineHeight" show-input :max="500" @on-change="setEvHandler"></Slider></div>
-                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="app-btn-gutter-l" @click="theme.lineHeight=defaultTheme.lineHeight; setEvHandler();">默认</Button></Tooltip>
-                                </div>
-
-                                <div class="set-item">
-                                    <div> 左右边距 </div>
-                                    <div class="slider app-btn-gutter-l"><Slider v-model="theme.vPadding" show-input @on-change="setEvHandler"></Slider></div>
-                                    <Tooltip placement="top" content="应用的默认值"><Button type="ghost" class="app-btn-gutter-l" @click="theme.vPadding=defaultTheme.vPadding; setEvHandler();">默认</Button></Tooltip>
-                                </div>
+                                <SetSlideItem title='文字间隔' v-model="theme.letterSpacing" :min="-2" :max="20" @changeSlide="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.letterSpacing=defaultTheme.letterSpacing; setEvHandler();" />
+                                <SetSlideItem title='行&ensp;间&ensp;距' v-model="theme.lineHeight" :max="500" @changeSlide="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.lineHeight=defaultTheme.lineHeight; setEvHandler();" />
+                                <SetSlideItem title='上下边距' v-model="theme.hPadding" :max="300" @changeSlide="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.hPadding=defaultTheme.hPadding; setEvHandler();" />
+                                <SetSlideItem title='左右边距' v-model="theme.vPadding" :max="300" @changeSlide="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.vPadding=defaultTheme.vPadding; setEvHandler();" />
+                                <SetSlideItem title='纸张大小' v-model="theme.pageWidth" :max="500" @changeSlide="setEvHandler" btnTips="应用的默认值" @clickBtn="theme.pageWidth=defaultTheme.pageWidth; setEvHandler();" />
                             </div>
 
                             <div id="set-theme" class="set-group">
