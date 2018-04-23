@@ -1,5 +1,7 @@
 var axios = require('axios')
 
+exports.bus;
+
 exports.getCaptionTitleCur = function getCaptionTitleCur(self){
     let caption = self.caption;
     return getCaptionTitleByCaption(self, caption);
@@ -64,13 +66,17 @@ exports.goCaption = function goCaption(self, relDir, file, caption){
 
 //获取指定 caption 的 content
 exports.fetchCaptionContent = function fetchCaptionContent(self, bookRoot, relDir, file, caption) {
-    self.loading = true;
+    self.$Message.loading({
+        content: '读取正文...', 
+        duration: 0,    
+    });
     let contentUrl = bookRoot + "/" + relDir + "/" + file + "/" + caption;
     console.log("fetchCaptionContent: " + contentUrl);
     axios.get(contentUrl).then(function(response){
-        self.loading = false;
+        self.$Message.destroy();
         self.content = response.data;
     }).catch(function(error){
+        self.$Message.destroy();
         console.log(error);
         let errStr = "<p>章节文件路径: " + contentUrl + "</p>";
         errStr += "err: " + error;

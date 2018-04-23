@@ -18,6 +18,7 @@ export default {
     },
     created () {
         getReadPosition(this);
+        cm.bus.$on('goBookmarkEv', this.goBookmarkEvHandler)
     },
     mounted () {
         //如果自动记录的 caption 和用户输入的 caption 相同，直接 goCaption 到自动记录的 caption 不会触发路由变化，也就不会触发获取 content 函数，所以需要手动获取一次自动记录的章节内容
@@ -41,6 +42,9 @@ export default {
             this.$nextTick(this.setReadPositionScroll);
             this.$nextTick(this.saveReadPosition);
         },
+        captionTitle () {
+            this.$emit('updateContentEv', this.captionTitle);
+        },
     },
     methods: {
         goCaption (val) {
@@ -48,6 +52,7 @@ export default {
         },
         fetchContent (caption) {
             cm.fetchCaptionContent(this, this.bookRoot, this.relDir, this.file, caption);
+            
         },
         getCaptionTitleCur () {
             return cm.getCaptionTitleCur(this);
@@ -57,6 +62,19 @@ export default {
         },
         setReadPositionScroll () {
             cm.setReadPositionScroll(this);
+        },
+        goBookmarkEvHandler (readPosition) {
+            let self = this;
+
+            self.readPosition = readPosition;
+            let caption = self.caption;
+            if (caption != readPosition.caption) {
+                console.log("goBookmark: NOT in bookmark's caption, goCaption");
+                self.goCaption(readPosition.caption);
+            } else {
+                console.log("goBookmark: in bookmark's caption, set position directly");
+                cm.setReadPositionScroll(self);
+            }
         },
     },
 }

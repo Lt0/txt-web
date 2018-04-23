@@ -84,7 +84,6 @@ function newBookmark (self) {
 }
 
 function goBookmark (self, markId) {
-    console.log("goBookmark");
     let rp;
     for (let i = 0; i < self.bookmarks.length; i++){
         if (self.bookmarks[i].id == markId) {
@@ -93,7 +92,7 @@ function goBookmark (self, markId) {
         }
     }
 
-    self.$emit('goBookmarkEv', rp);
+    cm.bus.$emit('goBookmarkEv', rp);
 }
 
 function delBookMark(self, markId) {

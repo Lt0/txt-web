@@ -79,7 +79,7 @@
             <div id="hdr-left">{{ captionTitle }}</div>
             <div id="hdr-center"></div>
             <div id="hdr-right">
-                <HdrBookmarks class="app-btn-gutter-l" :relDir="relDir" :file="file" :caption="caption" :captionTitle="captionTitle" @goBookmarkEv="goBookmarkEvHandler" />
+                <HdrBookmarks class="app-btn-gutter-l" :relDir="relDir" :file="file" :caption="caption" :captionTitle="captionTitle" />
                 <HdrCatalogs class="app-btn-gutter-l" :bookRoot="bookRoot" :relDir="relDir" :file="file" :caption="caption" @goCaptionByCatalog="goCaption" @sendCatalogs="recvCatalogs" />
                 <HdrSet class="app-btn-gutter-l" v-model="conf" />
                 <HdrMore class="app-btn-gutter-l" :bookRoot="bookRoot" :relDir="relDir" :file="file"/>
@@ -93,7 +93,7 @@
                 <AppBtn id="goPrev" icon="ios-arrow-back" />
             </div>
             <div id="center">
-                <Content :bookRoot="bookRoot" :relDir="relDir" :file="file" :caption="caption" :conf="conf" :catalogs="catalogs" />
+                <Content :bookRoot="bookRoot" :relDir="relDir" :file="file" :caption="caption" :conf="conf" :catalogs="catalogs" @updateContentEv="updateContentEvHandler" />
                 <Footer class="layout-footer-center footer" :style="{background: 'transparent'}">2018 &copy; lightimehpq@gmail.com</Footer>
             </div>
             <div id="right" v-on:click="goNext">
@@ -131,9 +131,7 @@ let conf = new cm.userConf(Object.assign({}, cm.defaultTheme), JSON.parse(JSON.s
                 fileInfo: null,
                 catalogs: null,
                 captionTitle: null,
-                /* content: null, */
                 loading: true,
-                /* basePageWidth: cm.basePageWidth, */
                 conf: conf,
                 bookInfoModal: false,
                 readPosition: null,
@@ -162,7 +160,6 @@ let conf = new cm.userConf(Object.assign({}, cm.defaultTheme), JSON.parse(JSON.s
                 if (!this.$route.params.path) return null;
                 let params = this.$route.params.path.split("/");
                 if (params.length < 2) return null;
-                console.log("recomputed caption: " + params[params.length-1]);
                 return params[params.length-1];
             },
         },
@@ -185,9 +182,6 @@ let conf = new cm.userConf(Object.assign({}, cm.defaultTheme), JSON.parse(JSON.s
             recvCatalogs (cata) {
                 this.catalogs = cata;
             },
-            jump () {
-                console.log("jump");
-            },
             goCaption (val) {
                 cm.goCaption(this, this.relDir, this.file, val);
             },
@@ -197,6 +191,9 @@ let conf = new cm.userConf(Object.assign({}, cm.defaultTheme), JSON.parse(JSON.s
                 console.log("replaceCaption: " + p);
                 this.$router.replace({ path: p });
             },
+            updateContentEvHandler (arg) {
+                this.captionTitle = arg;
+            },
             goPrev () {
                 let self = this;
                 goPrev(self);
@@ -204,20 +201,6 @@ let conf = new cm.userConf(Object.assign({}, cm.defaultTheme), JSON.parse(JSON.s
             goNext () {
                 let self = this;
                 goNext(self)
-            },
-            goBookmarkEvHandler (readPosition) {
-                console.log("goBookmarkEvHandler");
-                let self = this;
-
-                self.readPosition = readPosition;
-                let caption = self.caption;
-                if (caption != readPosition.caption) {
-                    console.log("goBookmark: NOT in bookmark's caption, goCaption");
-                    self.goCaption(readPosition.caption);
-                } else {
-                    console.log("goBookmark: in bookmark's caption, set position directly");
-                    cm.setReadPositionScroll(self);
-                }
             },
         }
     }

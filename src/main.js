@@ -8,6 +8,8 @@ import iView from 'iview';
 import 'iview/dist/styles/iview.css';
 import './app.css';
 
+import cm from './components/common/js'
+
 // 引入自定义组件
 import AppBtn from './components/common/AppBtn'
 
@@ -16,6 +18,9 @@ Vue.component('AppBtn', AppBtn);
 
 Vue.config.productionTip = false
 Vue.use(iView);
+
+// 初始化全局通信总线
+cm.bus = new Vue();
 
 /* eslint-disable no-new */
 new Vue({
