@@ -1,6 +1,7 @@
 var caption = require('./caption');
 var theme = require('./theme');
 var conf = require('./conf');
+var bapi = require('./backendAPI');
 
 export default {
     // 全局通信总线，在 main.js 中初始化为 vue 示例，通过 vue 事件进行通信
@@ -13,6 +14,10 @@ export default {
     setReadPositionScroll: caption.setReadPositionScroll,
     goCaption: caption.goCaption,
     fetchCaptionContent: caption.fetchCaptionContent,
+    fetchCatalogs: caption.fetchCatalogs,
+    fetchBookInfo: caption.fetchBookInfo,
+    showBookInfoModal: caption.showBookInfoModal,
+    downloadBook: caption.downloadBook,
 
     // theme
     theme: theme.theme,
@@ -31,4 +36,8 @@ export default {
     userConf: conf.userConf,
     saveUserConf: conf.saveUserConf,
     getUserConf: conf.getUserConf,
+
+    // backend api
+    getBookmarkUrl: bapi.getBookmarkUrl,
+    saveBookmarkUrl: bapi.saveBookmarkUrl,
 }

@@ -1,6 +1,7 @@
-// 当前模块包含正文相关的功能, 包括获取章节正文，阅读位置的相关操作，章节标题的提取等
+// 当前模块包含正文相关的功能, 包括获取目录，章节正文，阅读位置的相关操作，章节标题的提取等
 
 var axios = require('axios');
+var bapi = require('./backendAPI');
 
 exports.getCaptionTitleCur = getCaptionTitleCur;
 exports.ReadPosition = ReadPosition;
@@ -8,6 +9,10 @@ exports.updateReadPosition = updateReadPosition;
 exports.setReadPositionScroll = setReadPositionScroll;
 exports.goCaption = goCaption;
 exports.fetchCaptionContent = fetchCaptionContent;
+exports.fetchCatalogs = fetchCatalogs;
+exports.fetchBookInfo = fetchBookInfo;
+exports.showBookInfoModal = showBookInfoModal;
+exports.downloadBook = downloadBook;
 
 
 function getCaptionTitleCur(self){
@@ -74,12 +79,13 @@ function goCaption(self, relDir, file, caption){
 }
 
 //获取指定 caption 的 content
-function fetchCaptionContent(self, bookRoot, relDir, file, caption) {
+function fetchCaptionContent(self, relDir, file, caption) {
     self.$Message.loading({
         content: '读取正文...', 
         duration: 0,    
     });
-    let contentUrl = bookRoot + "/" + relDir + "/" + file + "/" + caption;
+
+    let contentUrl = bapi.contentUrl(relDir, file, caption);
     console.log("fetchCaptionContent: " + contentUrl);
     axios.get(contentUrl).then(function(response){
         self.$Message.destroy();
@@ -94,4 +100,71 @@ function fetchCaptionContent(self, bookRoot, relDir, file, caption) {
             content: errStr,
         });
     });
+}
+
+function fetchCatalogs(self, relDir, file){
+    let catalogUrl = bapi.catalogUrl(relDir, file);
+    console.log("HdrCatalogs get catalog: " + catalogUrl);
+
+    axios.get(catalogUrl).then(function(response){
+        splitCatalogs(response.data, self);
+        self.captionTitle = getCaptionTitleCur(self);
+        let t = document.getElementsByTagName("title")[0];
+        t.innerHTML = self.file;
+        self.$emit('sendCatalogs', self.catalogs);
+    }).catch(function(error){
+        console.log(error);
+    });
+}
+
+function splitCatalogs(catalogsStr, self) {
+    let cls = catalogsStr.split("\n");
+    
+    self.catalogs = [];
+    for (var i = 0; i < cls.length; i++) {
+        if (cls[i] == "") {
+            continue;
+        }
+        let item = {name: "", text: ""};
+        item.name = (i+1) + ".txt";
+        item.text = (i+1) +": " + cls[i];
+        self.catalogs.push(item);
+    }
+}
+
+function fetchBookInfo(self, relDir, file){
+    let infoPath = bapi.bookInfoUrl(relDir, file);
+    axios.get(infoPath).then(function(res){
+        if (res.status != 200) {
+            self.$Message.error("获取书籍信息出错: " + res.status);
+            return;
+        }
+        console.log(res.data);
+        self.fileInfo = res.data;
+        showBookInfoModal(self);
+    }).catch(function(err){
+        self.$Message.error("获取书籍信息失败: " + err);
+    });
+}
+
+function showBookInfoModal(self){
+    let info = "字数：" + self.fileInfo.Words;
+    info += "<br><br>章节：" + self.fileInfo.Chapters;
+    info += "<br><br>修改时间：" + self.fileInfo.ModTime;
+    self.$Modal.info({
+        title: self.fileInfo.Name,
+        content: info,
+        closable: true,
+    });
+}
+
+function downloadBook(relDir, file){
+    let a = document.createElement('a');
+    a.href = bapi.downloadBookUrl(relDir, file)
+    a.download = file;
+    //append to body to trigger download in firefox
+    document.body.appendChild(a);
+
+    a.click();
+    document.body.removeChild(a);
 }

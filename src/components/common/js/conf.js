@@ -1,11 +1,10 @@
 var axios = require('axios');
+var bapi = require('./backendAPI');
 
 exports.userConf = userConf;
 exports.saveUserConf = saveUserConf;
-exports.getUserConf = saveUserConf;
+exports.getUserConf = getUserConf;
 
-
-let confUrl = '/static/cache/conf/user.conf';
 
 function userConf(theme, themeList) {
     this.theme = theme;
@@ -13,8 +12,9 @@ function userConf(theme, themeList) {
 }
 
 function saveUserConf(self, conf){
-    let confPath = "/api/reader/txt/user/conf";
-    axios.post(confPath, conf).then(function(res){
+    path = bapi.saveConfUrl;
+    console.log("saveUserConf: " + path);
+    axios.post(path, conf).then(function(res){
         console.log(res)
         if (res.data == null || res.data == "") {
             self.$Message.info("保存成功");
@@ -28,9 +28,9 @@ function saveUserConf(self, conf){
 }
 
 function getUserConf(self){
-    console.log("get user conf: " + confUrl);
+    console.log("get user conf: " + bapi.getConfUrl);
     //printUserConf(self);
-    axios.get(confUrl).then(function(response){
+    axios.get(bapi.getConfUrl).then(function(response){
         if (response.status != 200) {
             self.$Message.warning({duration: 15, closable: true, content: "then: 同步服务端配置到本地出错：" + response.status});
             return;

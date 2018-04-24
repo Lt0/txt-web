@@ -19,7 +19,7 @@
 import axios from 'axios'
 import cm from '../common/js'
 
-let bookmarkRoot = '/static/cache/txt/bookmarks/';
+/* let bookmarkRoot = '/static/cache/txt/bookmarks/'; */
 
 export default {
     props: ['relDir', 'file', 'caption', 'captionTitle', 'readPosition'],
@@ -53,7 +53,7 @@ export default {
 
 function getBookmarks(self){
     console.log("getBookmarks");
-    let getBookmarksPath = bookmarkRoot + encodeURIComponent(self.relDir + self.file);
+    let getBookmarksPath = cm.getBookmarkUrl(self.relDir, self.file);
     axios.get(getBookmarksPath).then(function(res){
         if (!res.data) return;
         self.bookmarks = res.data;
@@ -65,7 +65,7 @@ function getBookmarks(self){
 
 function updateServerBookmarks(self){
     console.log("updateServerBookmarks");
-    let postBookmarksPath = "/api/reader/txt/user/bookmarks?file=" + encodeURIComponent(self.relDir + self.file);
+    let postBookmarksPath = cm.saveBookmarkUrl(self.relDir, self.file);
     axios.post(postBookmarksPath, self.bookmarks).then(function(res){
         if (res.data == "" || res.data == null){
             //self.$Message.success("书签同步成功");

@@ -80,9 +80,9 @@
             <div id="hdr-center"></div>
             <div id="hdr-right">
                 <HdrBookmarks class="app-btn-gutter-l" :relDir="relDir" :file="file" :caption="caption" :captionTitle="captionTitle" />
-                <HdrCatalogs class="app-btn-gutter-l" :bookRoot="bookRoot" :relDir="relDir" :file="file" :caption="caption" @goCaptionByCatalog="goCaption" @sendCatalogs="recvCatalogs" />
+                <HdrCatalogs class="app-btn-gutter-l" :relDir="relDir" :file="file" :caption="caption" @goCaptionByCatalog="goCaption" @sendCatalogs="recvCatalogs" />
                 <HdrSet class="app-btn-gutter-l" v-model="conf" />
-                <HdrMore class="app-btn-gutter-l" :bookRoot="bookRoot" :relDir="relDir" :file="file"/>
+                <HdrMore class="app-btn-gutter-l" :relDir="relDir" :file="file"/>
             </div>
         </div>
     </div>
@@ -93,7 +93,7 @@
                 <AppBtn id="goPrev" icon="ios-arrow-back" />
             </div>
             <div id="center">
-                <Content :bookRoot="bookRoot" :relDir="relDir" :file="file" :caption="caption" :conf="conf" :catalogs="catalogs" @updateContentEv="updateContentEvHandler" />
+                <Content :relDir="relDir" :file="file" :caption="caption" :conf="conf" :catalogs="catalogs" @updateContentEv="updateContentEvHandler" />
                 <Footer class="layout-footer-center footer" :style="{background: 'transparent'}">2018 &copy; lightimehpq@gmail.com</Footer>
             </div>
             <div id="right" v-on:click="goNext">
@@ -113,7 +113,6 @@ import HdrCatalogs from '@/components/hdr/HdrCatalogs'
 import HdrSet from '@/components/hdr/HdrSet'
 import Content from '@/components/Content'
 
-let bookRoot = '/static/cache/books/';
 let conf = new cm.userConf(Object.assign({}, cm.defaultTheme), JSON.parse(JSON.stringify(cm.themeList)));
     
     export default {
@@ -126,7 +125,6 @@ let conf = new cm.userConf(Object.assign({}, cm.defaultTheme), JSON.parse(JSON.s
             },
         data() {
             return {
-                bookRoot: bookRoot,
                 path: this.$route.params.path,
                 fileInfo: null,
                 catalogs: null,

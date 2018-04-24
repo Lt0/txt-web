@@ -8,7 +8,7 @@
 <script>
 import cm from './common/js'
 export default {
-    props: ['bookRoot', 'relDir', 'file', 'caption', 'catalogs', 'conf'],
+    props: ['relDir', 'file', 'caption', 'catalogs', 'conf'],
     data () {
         return {
             captionTitle: null,
@@ -51,7 +51,7 @@ export default {
             cm.goCaption(this, this.relDir, this.file, val);
         },
         fetchContent (caption) {
-            cm.fetchCaptionContent(this, this.bookRoot, this.relDir, this.file, caption);
+            cm.fetchCaptionContent(this, this.relDir, this.file, caption);
             
         },
         getCaptionTitleCur () {

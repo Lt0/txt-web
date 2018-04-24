@@ -12,8 +12,10 @@
 
 <script>
 import axios from 'axios'
+import cm from '../common/js'
+
 export default {
-  props: ['bookRoot', 'relDir', 'file'],
+  props: ['relDir', 'file'],
   methods: {
       hdrMoreHandler (val) {
         console.log("hdrMoreHandler: " + val);
@@ -29,7 +31,7 @@ export default {
                 showAbout(self);
                 break;
             case "download":
-                download(self);
+                cm.downloadBook(this.relDir, this.file);
                 break;
             default:
                 console.log("unknow name: " + val);
@@ -41,31 +43,10 @@ export default {
 function showBookInfo (self) {
     console.log("showBookInfo");
     if (self.fileInfo) {
-        showBookInfoModal(self);
+        cm.showBookInfoModal(self);
         return;
     }
-    let infoPath = self.bookRoot + self.relDir + self.file + "/info.txt";
-    axios.get(infoPath).then(function(res){
-        if (res.status != 200) {
-            self.$Message.error("获取书籍信息出错: " + res.status);
-            return;
-        }
-        console.log(res.data);
-        self.fileInfo = res.data;
-        showBookInfoModal(self);
-    }).catch(function(err){
-        self.$Message.error("获取书籍信息失败: " + err);
-    });
-}
-function showBookInfoModal(self){
-    let info = "字数：" + self.fileInfo.Words;
-    info += "<br><br>章节：" + self.fileInfo.Chapters;
-    info += "<br><br>修改时间：" + self.fileInfo.ModTime;
-    self.$Modal.info({
-        title: self.fileInfo.Name,
-        content: info,
-        closable: true,
-    });
+    cm.fetchBookInfo(self, self.relDir, self.file);
 }
 
 function showHelp () {
@@ -78,16 +59,6 @@ function showAbout (self) {
         content: "<a href='https://github.com/Lt0/txt-web' target='_blank'>https://github.com/Lt0/txt-web</a>",
         closable: true,
     });
-}
-function download(self){
-    let a = document.createElement('a');
-    a.href = self.bookRoot + "/" + self.relDir + "/" + self.file + "/clearFile/" + self.file;
-    a.download = self.file;
-    //append to body to trigger download in firefox
-    document.body.appendChild(a);
-
-    a.click();
-    document.body.removeChild(a);
 }
 </script>
 
