@@ -1,6 +1,6 @@
 <template>
 <Dropdown id="setting" placement="bottom-end" trigger="custom" transfer :visible="setVisible">
-    <AppBtn icon="ios-gear" @click="setVisible? setVisible=false: setVisible=true" />
+    <AppBtn icon="ios-gear" @click="setVisible = !setVisible" />
     <DropdownMenu slot="list">
         <div id="setArea">
             <div id="set-color" class="set-group">
