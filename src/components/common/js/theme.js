@@ -46,14 +46,15 @@ const darkTheme = {
 };
 
 exports.fontList = [
-    {name: 'Helvetica Neue'}, 
-    {name: 'Helvetica'}, 
-    {name: 'PingFang SC'}, 
-    {name: 'Hiragino Sans GB'}, 
-    {name: 'Microsoft YaHei'}, 
-    {name: '微软雅黑'}, 
-    {name: 'Arial'}, 
-    {name: 'sans-serif'},
+    {name: '冬青黑体', font: 'dongqingheiti', size: '7.5M'}, 
+    {name: '方正黑简体', font: 'fangzhengheijianti', size: '1.2M'}, 
+    {name: '方正仿宋简体', font: 'fangzhengfangsongjianti', size: '1.5M'}, 
+    {name: '方正书宋简体', font: 'fangzhengshusongjianti', size: '1.2M'}, 
+    {name: '思源黑体', font: 'siyuanheiti-Regular', size: '12M'},
+    {name: '思源黑体-Thin', font: 'siyuanheiti-Thin', size: '9.4M'}, 
+    {name: '思源黑体-Bold', font: 'siyuanheiti-Bold', size: '12M'}, 
+    {name: '文泉正黑', font: 'wenquanzhenghei', size: '5.2M'}, 
+    {name: '文泉微米黑', font: 'wenquanweimihei', size: '1.4M'}, 
 ];
 
 const defaultThemeListItem = new themeListItem("default", defaultTheme);

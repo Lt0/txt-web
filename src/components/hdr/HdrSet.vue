@@ -22,11 +22,15 @@
 
             <div id="set-font" class="set-group">
                 <div class="set-title">字体设置</div>字体
-                <Select :value="conf.theme.font" placeholder=conf.theme.font size="small" filterable style="width:150px" class="app-btn-gutter-l" @on-change="setFont">
-                    <Option v-for="item in fontList" :value="item.name" :key="item.index">{{ item.name }}</Option>
-                </Select>
+                <Tooltip placement="top" content="首次设置会下载字体，耗时取决于字体大小">
+                    <Select :value="conf.theme.font" placeholder=conf.theme.font size="small" filterable style="width:150px" class="app-btn-gutter-l" @on-change="setFont">
+                        <Option v-for="item in fontList" :value="item.font" :key="item.index">
+                            <Tooltip placement="right" transfer :content=item.size>{{ item.name }}</Tooltip>
+                        </Option>
+                    </Select>
+                </Tooltip>
                 <!-- 如果已设置过字体，点击默认是会触发 select 的 on-change 事件，这里不需要再绑定 on-change 事件 -->
-                <Tooltip content="使用浏览器默认字体"><Button type="ghost" size="small" class="app-btn-gutter" @click="resetFont">默认</Button> </Tooltip>
+                <Tooltip content="使用浏览器默认字体"><Button type="ghost" size="small" class="app-btn-gutter-l" @click="resetFont">默认</Button> </Tooltip>
                 <SetSlideItem title='字体大小' :value="conf.theme.fontSize" :max="300" @slide="setFontSize" @slideEnd="setEvHandler(conf)" btnTips="应用的默认值" @clickBtn="resetFontSize" />
             </div>
 
@@ -61,6 +65,7 @@
 <script>
 import cm from '../common/js'
 import SetSlideItem from '@/components/common/SetSlideItem'
+import { fontList } from '../common/js/theme';
 
 export default {
     model: {
@@ -114,9 +119,9 @@ export default {
             tmpConf.theme.hdrBg = arg;
             this.setEvHandler(tmpConf);
         },
-        setFont (arg) {
+        setFont (font) {
             let tmpConf = Object.assign({}, this.conf);
-            tmpConf.theme.font = arg;
+            tmpConf.theme.font = font;
             this.setEvHandler(tmpConf);
         },
         resetFont (arg) {
