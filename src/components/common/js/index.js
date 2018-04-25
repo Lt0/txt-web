@@ -28,6 +28,7 @@ export default {
 
     defaultTheme: theme.defaultTheme,
     darkTheme: theme.darkTheme,
+    yelloTheme: theme.yelloTheme,
 
     themeListItem: theme.themeListItem,
     themeList: theme.themeList,

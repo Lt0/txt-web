@@ -36,7 +36,7 @@ const darkTheme = {
     bg: '#495060', 
     fontBg: '#39404F', 
     fontColor: '#E9EAEC',
-    font: "",
+    font: "siyuanheiti-Thin",
     fontSize: 120,
     lineHeight: 200,
     vPadding: 50,
@@ -44,6 +44,20 @@ const darkTheme = {
     letterSpacing: 0,
     pageWidth: 100,
 };
+
+const yelloTheme = {
+    hdrBg: '#d8c09b', 
+    bg: '#e9dec7', 
+    fontBg: '#e2cca9', 
+    fontColor: '#4f3f25',
+    font: "siyuanheiti-Regular",
+    fontSize: 120,
+    lineHeight: 200,
+    vPadding: 50,
+    hPadding: 50,
+    letterSpacing: 0,
+    pageWidth: 100,
+}
 
 exports.fontList = [
     {name: '冬青黑体', font: 'dongqingheiti', size: '7.5M'}, 
@@ -57,16 +71,19 @@ exports.fontList = [
     {name: '文泉微米黑', font: 'wenquanweimihei', size: '1.4M'}, 
 ];
 
-const defaultThemeListItem = new themeListItem("default", defaultTheme);
-const darkThemeListItem = new themeListItem("dark", darkTheme);
+const defaultThemeListItem = new themeListItem("Default", defaultTheme);
+const darkThemeListItem = new themeListItem("Dark", darkTheme);
+const yelloThemeListItem = new themeListItem("Yellow", yelloTheme);
 var themeList = [
     defaultThemeListItem,
     darkThemeListItem,
+    yelloThemeListItem,
 ];
 
 exports.theme = theme;
 exports.defaultTheme = defaultTheme;
 exports.darkTheme = darkTheme;
+exports.yelloTheme = yelloTheme;
 exports.themeList = themeList;
 exports.themeListItem = themeListItem;
 exports.colors = ['#1c2438', '#495060', '#80848f', '#bbbec4', '#dddee1', '#e9eaec', '#f8f8f9', '#EFF3F6', '#f5f7f9', '#fff'];
