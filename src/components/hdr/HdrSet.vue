@@ -22,10 +22,11 @@
 
             <div id="set-font" class="set-group">
                 <div class="set-title">字体设置</div>字体
-                <Tooltip placement="top" content="首次设置会下载字体，耗时取决于字体大小">
-                    <Select :value="conf.theme.font" placeholder=conf.theme.font transfer size="small" filterable style="width:150px" class="app-btn-gutter-l" @on-change="setFont">
+                <Tooltip placement="top" content="首次设置需要下载字体">
+                    <Select :value="conf.theme.font" placeholder=conf.theme.font size="small" filterable style="width:180px" class="app-btn-gutter-l" @on-change="setFont">
                         <Option v-for="item in fontList" :value="item.font" :key="item.index">
-                            <Tooltip placement="right" transfer :content=item.size>{{ item.name }}</Tooltip>
+                            <span>{{ item.name }}</span>
+                            <span style="float:right;color:#ccc">{{item.size}}</span>
                         </Option>
                     </Select>
                 </Tooltip>
@@ -47,7 +48,7 @@
                 <div class="theme-list">
                     <div class="theme-item" v-for="t in conf.themeList" :key="t.index" @click="useTheme(t)" :style="{background: t.theme.bg, color: t.theme.fontColor}">
                         <div class="theme-close-container"><Tooltip placement="top" content="彻底删除主题"><div @click.stop="delTheme(t)"><Icon type="close-circled" size="15" class="theme-close-btn"></Icon></div></Tooltip></div>
-                        <div class="theme-item-content"><div :style="{background: t.theme.fontBg, padding: '10px', width: '80%', textAlign: 'center',}">{{ t.name }}</div></div>
+                        <div class="theme-item-content"><div class="theme-text" :style="{background: t.theme.fontBg, padding: '10px', width: '80%', textAlign: 'center',}">{{ t.name }}</div></div>
                     </div>
                 </div>
             </div>
@@ -262,9 +263,17 @@ export default {
         flex-wrap: wrap;
     }
     .theme-item{
-        width: 90px;
-        height: 90px;
+        width: 88px;
+        height: 88px;
         margin: 5px 5px 0px 0px;       
+    }
+    .theme-text{
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
     }
     .theme-item-content{
         display: flex;
