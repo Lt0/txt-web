@@ -23,7 +23,7 @@
             <div id="set-font" class="set-group">
                 <div class="set-title">字体设置</div>字体
                 <Tooltip placement="top" content="首次设置会下载字体，耗时取决于字体大小">
-                    <Select :value="conf.theme.font" placeholder=conf.theme.font size="small" filterable style="width:150px" class="app-btn-gutter-l" @on-change="setFont">
+                    <Select :value="conf.theme.font" placeholder=conf.theme.font transfer size="small" filterable style="width:150px" class="app-btn-gutter-l" @on-change="setFont">
                         <Option v-for="item in fontList" :value="item.font" :key="item.index">
                             <Tooltip placement="right" transfer :content=item.size>{{ item.name }}</Tooltip>
                         </Option>

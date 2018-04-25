@@ -7,6 +7,7 @@ import router from './router'
 import iView from 'iview';
 import 'iview/dist/styles/iview.css';
 import './app.css';
+import './fonts.css';
 
 import cm from './components/common/js'
 
