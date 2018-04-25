@@ -4,7 +4,7 @@
         <DropdownMenu slot="list">
             <DropdownItem name="bookInfo">书籍信息</DropdownItem>
             <DropdownItem name="download">下&ensp;&ensp;&ensp;&ensp;载</DropdownItem>
-            <DropdownItem name="help">帮&ensp;&ensp;&ensp;&ensp;助</DropdownItem>
+            <!-- <DropdownItem name="help">帮&ensp;&ensp;&ensp;&ensp;助</DropdownItem> -->
             <DropdownItem name="about">关&ensp;&ensp;&ensp;&ensp;于</DropdownItem>
         </DropdownMenu>
     </Dropdown>
