@@ -4,8 +4,12 @@
 
 注意：这里只包括前端代码，没有任何后端代码。
 
+## demo
+http://athena-bookshelf.com//static/reader/txt/#/read/其它%2F文学%2F网络小说%2F临高启明%2F临高启明.txt/199.txt
 
-# 特性
+https://athena-bookshelf.com//static/reader/txt/#/read/其它%2F文学%2F网络小说%2F临高启明%2F临高启明.txt/199.txt
+
+## 特性
 - 按章节阅读 txt 文件（由服务端自动分割章节，尤其针对网络小说进行优化）
 - 实时保存阅读进度
 - 支持书签
@@ -37,14 +41,14 @@ For a detailed explanation on how things work, check out the [guide](http://vuej
 
 ## preview
   txt 阅读器-章节列表
-  <img src="https://github.com/Lt0/bookshelf/blob/master/docs/reader-txt-1.png" alt="txt 阅读器-章节列表" title="txt 阅读器-章节列表" />
+  <img src="https://github.com/Lt0/txt-web/blob/master/docs/img/reader-txt-1.png" alt="txt 阅读器-章节列表" title="txt 阅读器-章节列表" />
   
   <br>
   <br>
   txt 阅读器-主题定制
-  <img src="https://github.com/Lt0/bookshelf/blob/master/docs/reader-txt-2.png" alt="txt 阅读器-主题定制" title="txt 阅读器-主题定制" />
+  <img src="https://github.com/Lt0/txt-web/blob/master/docs/img/reader-txt-2.png" alt="txt 阅读器-主题定制" title="txt 阅读器-主题定制" />
   
   <br>
   <br>
   txt 阅读器-书签
-  <img src="https://github.com/Lt0/bookshelf/blob/master/docs/reader-txt-3.png" alt="txt 阅读器-书签" title="txt 阅读器-书签" />
+  <img src="https://github.com/Lt0/txt-web/blob/master/docs/img/reader-txt-3.png" alt="txt 阅读器-书签" title="txt 阅读器-书签" />
