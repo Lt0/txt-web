@@ -5,9 +5,8 @@
 注意：这里只包括前端代码，没有任何后端代码。
 
 ## demo
-http://athena-bookshelf.com//static/reader/txt/#/read/其它%2F文学%2F网络小说%2F临高启明%2F临高启明.txt/199.txt
+https://athena-bookshelf.com//static/reader/txt/#/read/其它%2F文学%2F小说%2F百年孤独.txt/1.txt
 
-https://athena-bookshelf.com//static/reader/txt/#/read/其它%2F文学%2F网络小说%2F临高启明%2F临高启明.txt/199.txt
 
 ## 特性
 - 按章节阅读 txt 文件（由服务端自动分割章节，尤其针对网络小说进行优化）
